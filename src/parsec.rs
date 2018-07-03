@@ -226,7 +226,7 @@ impl<T: NetworkEvent, S: SecretId> Parsec<T, S> {
         self.set_meta_votes(event_hash)?;
         self.update_round_hashes(event_hash)?;
         if let Some(block) = self.next_stable_block() {
-            self.clear_consensus_data(block.payload());
+            self.clear_consensus_data(block.payload())?;
             let block_hash = Hash::from(serialise(&block)?.as_slice());
             let payload_hash = Hash::from(serialise(block.payload())?.as_slice());
             self.consensus_history.push(payload_hash);
@@ -311,7 +311,7 @@ impl<T: NetworkEvent, S: SecretId> Parsec<T, S> {
         Ok(())
     }
 
-    fn set_valid_blocks_carried(&mut self, event: &mut Event<T, S::PublicId>) -> Result<(), Error> {
+    fn set_valid_blocks_carried(&self, event: &mut Event<T, S::PublicId>) -> Result<(), Error> {
         // If my self_parent already carries a valid block for this peer, use it
         if let Some(self_parent) = self.self_parent(event) {
             event
@@ -752,7 +752,7 @@ impl<T: NetworkEvent, S: SecretId> Parsec<T, S> {
             })
     }
 
-    fn clear_consensus_data(&mut self, payload: &T) {
+    fn clear_consensus_data(&mut self, payload: &T) -> Result<(), Error> {
         // Clear all leftover data from previous consensus
         self.round_hashes = BTreeMap::new();
         self.meta_votes = BTreeMap::new();
@@ -767,6 +767,17 @@ impl<T: NetworkEvent, S: SecretId> Parsec<T, S> {
 
             event.valid_blocks_carried = new_valid_blocks;
         });
+
+        let events = self.events.clone();
+        for (event_hash, mut event) in events {
+            self.set_valid_blocks_carried(&mut event)?;
+            if let Some(evnt) = self.events.get_mut(&event_hash) {
+                *evnt = event;
+            } else {
+                return Err(Error::Logic);
+            }
+        }
+        Ok(())
     }
 
     fn restart_consensus(&mut self, latest_block_hash: &Hash) -> Result<(), Error> {

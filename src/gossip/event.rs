@@ -18,6 +18,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::{self, Debug, Formatter};
 use vote::Vote;
 
+#[derive(Clone)]
 pub(crate) struct Event<T: NetworkEvent, P: PublicId> {
     content: Content<T, P>,
     // Creator's signature of `content`.
