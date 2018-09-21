@@ -18,6 +18,7 @@ use std::io::{self, Read};
 use std::iter;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::sync::Once;
 use std::thread;
 
 /// The event graph and associated info that were parsed from the dumped dot file.
@@ -69,7 +70,23 @@ fn open_corresponding_svg(dot_path: &Path) -> File {
 }
 
 fn try_check_svg_contents(dot_path: &Path, mut svg: File) {
-    // If we have "dot" available, check that the SVG contents are correct.
+    // If we have "dot" version 2.40.1 available, check that the SVG contents are correct.
+    if let Ok(output) = Command::new("dot").arg("-V").output() {
+        let required = "version 2.40.1";
+        let installed_version = String::from_utf8_lossy(&output.stderr);
+        if !installed_version.contains(required) {
+            static WARN: Once = Once::new();
+            WARN.call_once(|| {
+                println!(
+                    "SVG check disabled as the installed version of {} is not the required {}.",
+                    installed_version.trim(),
+                    required
+                );
+            });
+            return;
+        }
+    }
+
     if let Ok(output) = Command::new("dot")
         .args(&["-Tsvg", dot_path.to_string_lossy().as_ref()])
         .output()

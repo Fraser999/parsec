@@ -9,6 +9,16 @@ language: rust
 rust:
   - 1.29.0
 sudo: false
+before_install:
+  - if [[ $TRAVIS_OS_NAME == osx ]]; then
+      (
+        brew install graphviz &&
+        if [[ ! "$(dot -V 2>&1)" =~ 2.40.1 ]]; then
+          echo "We need graphviz dot version 2.40.1 available to run the checks on the SVG files.";
+          exit 1;
+        fi
+      );
+    fi
 branches:
   only:
     - master
@@ -29,4 +39,4 @@ script:
     cargo clippy --verbose --all-targets --features=testing &&
     cargo clippy --verbose --all-targets --features=dump-graphs,testing
 before_cache:
- - cargo prune
+  - cargo prune
