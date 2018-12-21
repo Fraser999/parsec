@@ -7,8 +7,8 @@
 // permissions and limitations relating to use of the SAFE Network Software.
 
 use block::Block;
-#[cfg(any(feature = "testing", all(test, feature = "mock")))]
-use dev_utils::ParsedContents;
+// #[cfg(any(feature = "testing", all(test, feature = "mock")))]
+// use dev_utils::ParsedContents;
 use dump_graph;
 use error::{Error, Result};
 #[cfg(any(all(test, feature = "mock"), feature = "malice-detection"))]
@@ -30,11 +30,12 @@ use observation::{
     is_more_than_two_thirds, ConsensusMode, Malice, Observation, ObservationHash, ObservationKey,
     ObservationStore,
 };
-use peer_list::{PeerIndex, PeerIndexSet, PeerList, PeerState};
-use std::collections::{BTreeMap, BTreeSet, VecDeque};
+use peer_list::{PeerList, PeerState};
+use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::mem;
 #[cfg(all(test, feature = "mock"))]
 use std::ops::{Deref, DerefMut};
+use std::rc::Rc;
 use std::usize;
 
 /// The main object which manages creating and receiving gossip about network events from peers, and
@@ -95,7 +96,7 @@ pub struct Parsec<T: NetworkEvent, S: SecretId> {
     candidate_accomplice_accusations: CandidateAccompliceAccusations<T, S::PublicId>,
     // Peers we accused of unprovable malice.
     #[cfg(feature = "malice-detection")]
-    unprovable_offenders: PeerIndexSet,
+    unprovable_offenders: HashSet<Rc<S::PublicId>>,
 }
 
 impl<T: NetworkEvent, S: SecretId> Parsec<T, S> {

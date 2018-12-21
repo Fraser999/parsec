@@ -15,7 +15,6 @@ use super::{
 use error::Error;
 use id::{PublicId, SecretId};
 use network_event::NetworkEvent;
-use peer_list::PeerIndex;
 use serde::{Deserialize, Serialize};
 use vote::{Vote, VoteKey};
 

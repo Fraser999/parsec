@@ -12,7 +12,6 @@ use fnv::FnvHashMap;
 use gossip::EventIndex;
 use id::PublicId;
 use observation::{ObservationHash, ObservationKey};
-use peer_list::{PeerIndex, PeerIndexMap, PeerIndexSet};
 use round_hash::RoundHash;
 use std::collections::{btree_map::Entry, BTreeMap, BTreeSet, VecDeque};
 use std::fmt::{self, Debug};

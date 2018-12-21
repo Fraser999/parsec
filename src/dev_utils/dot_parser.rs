@@ -26,7 +26,7 @@ use observation::ConsensusMode;
 use observation::{
     Observation, ObservationHash, ObservationInfo, ObservationKey, ObservationStore,
 };
-use peer_list::{PeerIndexMap, PeerIndexSet, PeerList, PeerState};
+use peer_list::{PeerList, PeerState};
 use pom::char_class::{alphanum, digit, hex_digit, multispace, space};
 use pom::parser::*;
 use pom::Result as PomResult;

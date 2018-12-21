@@ -6,27 +6,29 @@
 // KIND, either express or implied. Please review the Licences for the specific language governing
 // permissions and limitations relating to use of the SAFE Network Software.
 
-use peer_list::{PeerIndex, PeerIndexSet};
+use id::PublicId;
+use std::collections::HashSet;
+use std::rc::Rc;
 
 #[derive(Clone, Debug, PartialEq, Eq, Ord, PartialOrd)]
-pub(crate) enum MembershipListChange {
-    Add(PeerIndex),
-    Remove(PeerIndex),
+pub(crate) enum MembershipListChange<P: PublicId> {
+    Add(Rc<P>),
+    Remove(Rc<P>),
 }
 
-impl MembershipListChange {
-    pub(super) fn apply(&self, peers: &mut PeerIndexSet) -> bool {
+impl<P: PublicId> MembershipListChange<P> {
+    pub(super) fn apply(&self, peers: &mut HashSet<Rc<P>>) -> bool {
         match *self {
-            MembershipListChange::Add(index) => peers.insert(index),
-            MembershipListChange::Remove(index) => peers.remove(&index),
+            MembershipListChange::Add(id) => peers.insert(id),
+            MembershipListChange::Remove(id) => peers.remove(&id),
         }
     }
 
     #[cfg(feature = "malice-detection")]
-    pub(super) fn unapply(&self, peers: &mut PeerIndexSet) -> bool {
+    pub(super) fn revert(&self, peers: &mut HashSet<Rc<P>>) -> bool {
         match *self {
-            MembershipListChange::Add(index) => peers.remove(&index),
-            MembershipListChange::Remove(index) => peers.insert(index),
+            MembershipListChange::Add(id) => peers.remove(&id),
+            MembershipListChange::Remove(id) => peers.insert(id),
         }
     }
 
@@ -40,4 +42,5 @@ impl MembershipListChange {
 }
 
 #[cfg(feature = "malice-detection")]
-pub(super) type MembershipListWithChanges<'a> = (PeerIndexSet, &'a [(usize, MembershipListChange)]);
+pub(super) type MembershipListWithChanges<'a, P: PublicId> =
+    (HashSet<Rc<P>>, &'a [(usize, MembershipListChange<P>)]);

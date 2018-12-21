@@ -10,7 +10,6 @@ use gossip::{EventHash, PackedEvent};
 use hash::Hash;
 use id::PublicId;
 use network_event::NetworkEvent;
-use peer_list::PeerIndex;
 use serde::{de::Visitor, Deserialize, Deserializer, Serialize, Serializer};
 use serialise;
 use std::cmp::Ordering;

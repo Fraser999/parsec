@@ -7,17 +7,17 @@
 // permissions and limitations relating to use of the SAFE Network Software.
 
 use super::membership_list::MembershipListChange;
-use super::peer_index::PeerIndexSet;
 use super::peer_state::PeerState;
 use gossip::{EventIndex, IndexedEventRef};
 use hash::Hash;
 use id::PublicId;
 use serialise;
 use std::iter::{self, FromIterator};
+use std::rc::Rc;
 
 #[derive(Debug)]
 pub(crate) struct Peer<P: PublicId> {
-    id: P,
+    id: Rc<P>,
     id_hash: Hash,
     pub(super) state: PeerState,
     pub(super) events: Events,
@@ -27,7 +27,7 @@ pub(crate) struct Peer<P: PublicId> {
 }
 
 impl<P: PublicId> Peer<P> {
-    pub(super) fn new(id: P, state: PeerState) -> Self {
+    pub(super) fn new(id: Rc<P>, state: PeerState) -> Self {
         let id_hash = Hash::from(serialise(&id).as_slice());
 
         Self {
@@ -41,8 +41,8 @@ impl<P: PublicId> Peer<P> {
         }
     }
 
-    pub fn id(&self) -> &P {
-        &self.id
+    pub fn id(&self) -> &Rc<P> {
+        self.id
     }
 
     pub fn id_hash(&self) -> &Hash {

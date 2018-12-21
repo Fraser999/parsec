@@ -11,7 +11,6 @@ use super::meta_vote::MetaVote;
 use gossip::IndexedEventRef;
 use id::PublicId;
 use observation::ObservationKey;
-use peer_list::{PeerIndex, PeerIndexMap, PeerIndexSet};
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub(crate) struct MetaEvent {

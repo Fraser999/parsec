@@ -23,7 +23,6 @@ use observation::ConsensusMode;
 use observation::ObservationInfo;
 #[cfg(any(test, feature = "dump-graphs", feature = "testing"))]
 use observation::ObservationStore;
-use peer_list::PeerIndex;
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "dump-graphs")]
 use std::fmt::{self, Display, Formatter};

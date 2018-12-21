@@ -10,7 +10,6 @@ use error::Error;
 use id::{Proof, PublicId, SecretId};
 use network_event::NetworkEvent;
 use observation::{ConsensusMode, Observation, ObservationHash, ObservationKey, ObservationStore};
-use peer_list::PeerIndex;
 use serde::de::DeserializeOwned;
 use serialise;
 use std::fmt::{self, Debug, Formatter};

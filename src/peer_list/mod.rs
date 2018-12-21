@@ -8,11 +8,9 @@
 
 mod membership_list;
 mod peer;
-mod peer_index;
 mod peer_state;
 
 pub(crate) use self::membership_list::MembershipListChange;
-pub(crate) use self::peer_index::{PeerIndex, PeerIndexMap, PeerIndexSet};
 pub use self::peer_state::PeerState;
 #[cfg(all(test, feature = "mock"))]
 pub(crate) use self::snapshot::PeerListSnapshot;
@@ -31,26 +29,23 @@ use mock::PeerId;
 use std::collections::btree_map::{BTreeMap, Entry};
 #[cfg(any(test, feature = "testing"))]
 use std::collections::BTreeSet;
+use std::collections::HashMap;
 use std::fmt::{self, Debug, Formatter};
 use std::iter;
+use std::rc::Rc;
 
 pub(crate) struct PeerList<S: SecretId> {
     our_id: S,
-    our_peer: Peer<S::PublicId>,
-    peers: Vec<Peer<S::PublicId>>,
-    indices: BTreeMap<S::PublicId, PeerIndex>,
+    peers: HashMap<Rc<S::PublicId>, Peer<S::PublicId>>,
 }
 
 impl<S: SecretId> PeerList<S> {
     pub fn new(our_id: S) -> Self {
-        let our_peer = Peer::new(our_id.public_id().clone(), PeerState::inactive());
-
-        PeerList {
-            our_id,
-            our_peer,
-            peers: Vec::new(),
-            indices: BTreeMap::new(),
-        }
+        let our_pub_id = Rc::new(our_id.public_id().clone());
+        let our_peer = Peer::new(our_pub_id, PeerState::inactive());
+        let mut peers = HashMap::new();
+        let _ = peers.insert(our_pub_id, our_peer);
+        PeerList { our_id, peers }
     }
 
     pub fn our_id(&self) -> &S {
@@ -61,71 +56,51 @@ impl<S: SecretId> PeerList<S> {
         &self.our_id.public_id()
     }
 
-    pub fn get_index(&self, peer_id: &S::PublicId) -> Option<PeerIndex> {
-        if peer_id == self.our_id.public_id() {
-            Some(PeerIndex::OUR)
-        } else {
-            self.indices.get(peer_id).cloned()
-        }
+    pub fn contains(&self, peer_id: &Rc<S::PublicId>) -> bool {
+        self.peers.contains_key(peer_id)
     }
 
-    pub fn contains(&self, peer_id: &S::PublicId) -> bool {
-        peer_id == self.our_id.public_id() || self.indices.contains_key(peer_id)
+    pub fn get(&self, peer_id: &Rc<S::PublicId>) -> Option<&Peer<S::PublicId>> {
+        self.peers.get(peer_id)
     }
 
-    pub fn get(&self, index: PeerIndex) -> Option<&Peer<S::PublicId>> {
-        if index == PeerIndex::OUR {
-            Some(&self.our_peer)
-        } else {
-            self.peers.get(index.0 - 1)
-        }
-    }
-
-    pub fn get_known(&self, index: PeerIndex) -> Result<&Peer<S::PublicId>, Error> {
-        self.get(index).ok_or_else(|| {
+    pub fn get_known(&self, peer_id: &Rc<S::PublicId>) -> Result<&Peer<S::PublicId>, Error> {
+        self.peers.get(peer_id).ok_or_else(|| {
             log_or_panic!(
-                "{:?} does not have peer with index {:?}",
+                "{:?} does not have peer with ID {:?}",
                 self.our_id.public_id(),
-                index
+                peer_id
             );
             Error::UnknownPeer
         })
     }
 
-    fn get_known_mut(&mut self, index: PeerIndex) -> Option<&mut Peer<S::PublicId>> {
-        if index == PeerIndex::OUR {
-            Some(&mut self.our_peer)
-        } else if let Some(peer) = self.peers.get_mut(index.0 - 1) {
-            Some(peer)
-        } else {
+    fn get_known_mut(
+        &mut self,
+        peer_id: &Rc<S::PublicId>,
+    ) -> Result<&mut Peer<S::PublicId>, Error> {
+        self.peers.get_mut(peer_id).ok_or_else(|| {
             log_or_panic!(
-                "{:?} does not have peer with index {:?}",
+                "{:?} does not have peer with ID {:?}",
                 self.our_id.public_id(),
-                index
+                peer_id
             );
-            None
-        }
+            Error::UnknownPeer
+        })
     }
 
     /// Returns an iterator of peers.
-    pub fn iter(&self) -> impl Iterator<Item = (PeerIndex, &Peer<S::PublicId>)> {
-        iter::once((PeerIndex::OUR, &self.our_peer)).chain(
-            self.peers
-                .iter()
-                .enumerate()
-                .map(|(index, peer)| (PeerIndex(index + 1), peer)),
-        )
+    pub fn iter(&self) -> impl Iterator<Item = &Peer<S::PublicId>> {
+        self.peers.values()
     }
 
     /// Returns an iterator of peers that can vote.
-    pub fn voters(&self) -> impl Iterator<Item = (PeerIndex, &Peer<S::PublicId>)> {
+    pub fn voters(&self) -> impl Iterator<Item = &Peer<S::PublicId>> {
         self.iter().filter(|(_, peer)| peer.state.can_vote())
     }
 
     /// Returns an iterator of peers that we can send gossip to.
-    pub fn gossip_recipients<'a>(
-        &'a self,
-    ) -> impl Iterator<Item = (PeerIndex, &Peer<S::PublicId>)> + 'a {
+    pub fn gossip_recipients<'a>(&'a self) -> impl Iterator<Item = &Peer<S::PublicId>> + 'a {
         let iter = if self.our_peer.state.can_send() {
             let iter = self
                 .iter()
@@ -154,7 +129,7 @@ impl<S: SecretId> PeerList<S> {
         self.voters().map(|(index, _)| index)
     }
 
-    pub fn peer_state(&self, index: PeerIndex) -> PeerState {
+    pub fn peer_state(&self, peer_id: &Rc<S::PublicId>) -> PeerState {
         self.get(index)
             .map(|peer| peer.state)
             .unwrap_or_else(PeerState::inactive)
@@ -202,7 +177,7 @@ impl<S: SecretId> PeerList<S> {
         index
     }
 
-    pub fn remove_peer(&mut self, index: PeerIndex) {
+    pub fn remove_peer(&mut self, peer_id: &Rc<S::PublicId>) {
         if let Some(peer) = self.get_known_mut(index) {
             peer.state = PeerState::inactive();
         } else {
@@ -212,7 +187,7 @@ impl<S: SecretId> PeerList<S> {
         self.record_our_membership_list_change(MembershipListChange::Remove(index))
     }
 
-    pub fn change_peer_state(&mut self, index: PeerIndex, state: PeerState) {
+    pub fn change_peer_state(&mut self, peer_id: &Rc<S::PublicId>, state: PeerState) {
         let changed = if let Some(peer) = self.get_known_mut(index) {
             let could_vote = peer.state.can_vote();
             peer.state |= state;
@@ -229,7 +204,11 @@ impl<S: SecretId> PeerList<S> {
     /// Add `other_peer_id` to the membership list of the peer at `index`.
     /// If `index` refer to ourselves, this function does nothing to prevent redundancy (the `PeerList`
     /// itself is already our membership list).
-    pub fn add_to_peer_membership_list(&mut self, index: PeerIndex, other_peer_id: &S::PublicId) {
+    pub fn add_to_peer_membership_list(
+        &mut self,
+        peer_id: &Rc<S::PublicId>,
+        other_peer_id: &S::PublicId,
+    ) {
         if let Some(other_index) = self.get_index(other_peer_id) {
             self.change_peer_membership_list(index, MembershipListChange::Add(other_index))
         }
@@ -238,7 +217,7 @@ impl<S: SecretId> PeerList<S> {
     /// Remove `other_peer_id` from the membership list of the peer at `index`.
     pub fn remove_from_peer_membership_list(
         &mut self,
-        index: PeerIndex,
+        peer_id: &Rc<S::PublicId>,
         other_peer_id: &S::PublicId,
     ) {
         if let Some(other_index) = self.get_index(other_peer_id) {
@@ -246,7 +225,11 @@ impl<S: SecretId> PeerList<S> {
         }
     }
 
-    pub fn change_peer_membership_list(&mut self, index: PeerIndex, change: MembershipListChange) {
+    pub fn change_peer_membership_list(
+        &mut self,
+        peer_id: &Rc<S::PublicId>,
+        change: MembershipListChange,
+    ) {
         if index == PeerIndex::OUR {
             return;
         }
@@ -257,8 +240,11 @@ impl<S: SecretId> PeerList<S> {
     }
 
     /// Initialise the membership list of the peer at `index`.
-    pub fn initialise_peer_membership_list<I>(&mut self, index: PeerIndex, membership_list: I)
-    where
+    pub fn initialise_peer_membership_list<I>(
+        &mut self,
+        peer_id: &Rc<S::PublicId>,
+        membership_list: I,
+    ) where
         I: IntoIterator<Item = PeerIndex>,
     {
         // Do not populate our membership list as it would be redundant.
@@ -279,7 +265,7 @@ impl<S: SecretId> PeerList<S> {
     }
 
     /// Returns whether the membership list of the given peer is already initialised.
-    pub fn is_peer_membership_list_initialised(&self, index: PeerIndex) -> bool {
+    pub fn is_peer_membership_list_initialised(&self, peer_id: &Rc<S::PublicId>) -> bool {
         self.get(index)
             .map_or(false, |peer| !peer.membership_list().is_empty())
     }
@@ -289,7 +275,7 @@ impl<S: SecretId> PeerList<S> {
     #[cfg(feature = "malice-detection")]
     pub fn peer_membership_list_snapshot_excluding_last_remove(
         &self,
-        peer_index: PeerIndex,
+        peer_peer_id: &Rc<S::PublicId>,
         event_index: usize,
     ) -> Option<PeerIndexSet> {
         let (mut list, changes) = self.peer_membership_list_and_changes(peer_index)?;
@@ -310,7 +296,7 @@ impl<S: SecretId> PeerList<S> {
     /// Returns the history of changes to the membership list of the given peer.
     pub fn peer_membership_list_changes(
         &self,
-        index: PeerIndex,
+        peer_id: &Rc<S::PublicId>,
     ) -> &[(usize, MembershipListChange)] {
         if let Some(peer) = self.get(index) {
             peer.membership_list_changes()
@@ -320,7 +306,7 @@ impl<S: SecretId> PeerList<S> {
     }
 
     /// Returns the index of the last event created by this peer. Returns `None` if cannot find.
-    pub fn last_event(&self, peer_index: PeerIndex) -> Option<EventIndex> {
+    pub fn last_event(&self, peer_peer_id: &Rc<S::PublicId>) -> Option<EventIndex> {
         self.get(peer_index)
             .and_then(|peer| peer.events().rev().next())
     }
@@ -328,7 +314,7 @@ impl<S: SecretId> PeerList<S> {
     /// Returns the indices of the events at the given index-by-creator.
     pub fn events_by_index<'a>(
         &'a self,
-        peer_index: PeerIndex,
+        peer_peer_id: &Rc<S::PublicId>,
         index_by_creator: usize,
     ) -> impl Iterator<Item = EventIndex> + 'a {
         self.get(peer_index)
@@ -338,13 +324,13 @@ impl<S: SecretId> PeerList<S> {
 
     /// Returns the index of the last event gossiped to us by the given peer.
     #[cfg(feature = "malice-detection")]
-    pub fn last_gossiped_event_by(&self, peer_index: PeerIndex) -> Option<EventIndex> {
+    pub fn last_gossiped_event_by(&self, peer_peer_id: &Rc<S::PublicId>) -> Option<EventIndex> {
         self.get(peer_index)
             .and_then(|peer| peer.last_gossiped_event)
     }
 
     /// Record that the given peer gossiped to us the given event.
-    pub fn record_gossiped_event_by(&mut self, index: PeerIndex, event_index: EventIndex) {
+    pub fn record_gossiped_event_by(&mut self, peer_id: &Rc<S::PublicId>, event_index: EventIndex) {
         if let Some(peer) = self.get_known_mut(index) {
             if peer
                 .last_gossiped_event
@@ -393,7 +379,7 @@ impl<S: SecretId> PeerList<S> {
     ))]
     pub fn peer_events<'a>(
         &'a self,
-        peer_index: PeerIndex,
+        peer_peer_id: &Rc<S::PublicId>,
     ) -> impl DoubleEndedIterator<Item = EventIndex> + 'a {
         self.get(peer_index)
             .into_iter()
@@ -413,7 +399,7 @@ impl<S: SecretId> PeerList<S> {
     #[cfg(feature = "malice-detection")]
     fn peer_membership_list_and_changes(
         &self,
-        index: PeerIndex,
+        peer_id: &Rc<S::PublicId>,
     ) -> Option<MembershipListWithChanges> {
         let peer = self.get(index)?;
         let list = if index == PeerIndex::OUR {

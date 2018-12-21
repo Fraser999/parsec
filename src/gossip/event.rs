@@ -23,14 +23,15 @@ use id::{PublicId, SecretId};
 use mock::{PeerId, Transaction};
 use network_event::NetworkEvent;
 use observation::{Observation, ObservationKey, ObservationStore};
-use peer_list::{PeerIndex, PeerIndexMap, PeerIndexSet, PeerList};
+use peer_list::PeerList;
 use serialise;
 use std::cmp;
 #[cfg(any(test, feature = "testing"))]
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashSet};
 use std::fmt::{self, Debug, Display, Formatter};
 #[cfg(feature = "dump-graphs")]
 use std::io::{self, Write};
+use std::rc::Rc;
 use vote::{Vote, VoteKey};
 
 pub(crate) struct Event<P: PublicId> {
@@ -191,7 +192,7 @@ impl<P: PublicId> Event<P> {
     #[allow(clippy::needless_pass_by_value)]
     pub(crate) fn unpack<T: NetworkEvent, S: SecretId<PublicId = P>>(
         packed_event: PackedEvent<T, P>,
-        forking_peers: &PeerIndexSet,
+        forking_peers: &HashSet<Rc<P>>,
         ctx: EventContextMut<T, S>,
     ) -> Result<UnpackedEvent<P>, Error> {
         let hash = compute_event_hash_and_verify_signature(
@@ -494,7 +495,7 @@ struct Cache {
     last_ancestors: PeerIndexMap<usize>,
     // Peers with a fork having both sides seen by this event.
     forking_peers: PeerIndexSet,
-    // First leter of the creator name.
+    // First letter of the creator name.
     #[cfg(any(test, feature = "testing", feature = "dump-graphs"))]
     creator_initial: char,
 }

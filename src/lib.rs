@@ -154,6 +154,7 @@
     missing_copy_implementations,
     missing_debug_implementations,
     variant_size_differences,
+    unused,
     clippy::new_ret_no_self
 )]
 
