@@ -58,7 +58,7 @@ mod tests {
     #[test]
     fn split_vec_of_numbers() {
         assert_eq!(
-            split_on_first(vec![1, 2, 3, 4], |n| n % 2 == 0).collect::<Vec<Vec<_>>>(),
+            split_on_first(vec![1, 2, 3, 4, 5, 6, 7], |n| n % 2 == 0).collect::<Vec<Vec<_>>>(),
             vec![vec![1], vec![2, 3], vec![4]]
         )
     }

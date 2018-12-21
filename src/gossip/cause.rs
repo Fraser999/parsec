@@ -14,6 +14,7 @@ use id::PublicId;
 use mock::{PeerId, Transaction};
 use network_event::NetworkEvent;
 use std::fmt::{self, Display, Formatter};
+use std::rc::Rc;
 use vote::Vote;
 
 #[serde(bound = "")]
@@ -21,17 +22,17 @@ use vote::Vote;
 pub(super) enum Cause<T: NetworkEvent, P: PublicId> {
     // Hashes are the latest `Event` of own and the peer which sent the request.
     Request {
-        self_parent: EventHash,
-        other_parent: EventHash,
+        self_parent: Rc<EventHash>,
+        other_parent: Rc<EventHash>,
     },
     // Hashes are the latest `Event` of own and the peer which sent the response.
     Response {
-        self_parent: EventHash,
-        other_parent: EventHash,
+        self_parent: Rc<EventHash>,
+        other_parent: Rc<EventHash>,
     },
     // Hash of our latest `Event`. Vote for a single network event of type `T`.
     Observation {
-        self_parent: EventHash,
+        self_parent: Rc<EventHash>,
         vote: Vote<T, P>,
     },
     // Initial empty `Event` of this peer.

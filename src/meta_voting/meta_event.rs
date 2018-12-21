@@ -8,7 +8,6 @@
 
 use super::meta_elections::MetaElectionHandle;
 use super::meta_vote::MetaVote;
-use gossip::IndexedEventRef;
 use id::PublicId;
 use network_event::NetworkEvent;
 use observation::ObservationKey;

@@ -9,7 +9,6 @@
 use super::meta_event::MetaEvent;
 use super::meta_vote::MetaVote;
 use fnv::FnvHashMap;
-use gossip::EventIndex;
 use id::PublicId;
 use observation::{ObservationHash, ObservationKey};
 use peer_list::{PeerIndex, PeerIndexMap, PeerIndexSet};
@@ -480,7 +479,7 @@ impl MetaElections {
 pub(crate) mod snapshot {
     use super::super::meta_event::snapshot::MetaEventSnapshot;
     use super::*;
-    use gossip::{EventHash, Graph};
+    use gossip::EventHash;
     use id::SecretId;
     use network_event::NetworkEvent;
     use observation::snapshot::ObservationKeySnapshot;

@@ -9,7 +9,6 @@
 use super::membership_list::MembershipListChange;
 use super::peer_index::PeerIndexSet;
 use super::peer_state::PeerState;
-use gossip::{EventIndex, IndexedEventRef};
 use hash::Hash;
 use id::PublicId;
 use network_event::NetworkEvent;

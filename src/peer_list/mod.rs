@@ -21,9 +21,7 @@ pub(crate) use self::snapshot::PeerListSnapshot;
 use self::membership_list::MembershipListWithChanges;
 use self::peer::Peer;
 use error::Error;
-#[cfg(any(test, feature = "testing"))]
-use gossip::Graph;
-use gossip::{Event, EventIndex, IndexedEventRef};
+use gossip::Event;
 use hash::Hash;
 use id::SecretId;
 #[cfg(any(test, feature = "testing"))]

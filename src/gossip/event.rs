@@ -10,7 +10,7 @@ use super::{
     cause::Cause,
     content::Content,
     event_hash::EventHash,
-    graph::{EventIndex, Graph, IndexedEventRef},
+    // graph::{EventIndex, Graph, IndexedEventRef},
     packed_event::PackedEvent,
 };
 use error::Error;
@@ -25,10 +25,11 @@ use peer_list::{PeerIndex, PeerIndexMap, PeerIndexSet, PeerList};
 use serialise;
 use std::cmp;
 #[cfg(any(test, feature = "testing"))]
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 use std::fmt::{self, Debug, Formatter};
 #[cfg(feature = "dump-graphs")]
 use std::io::{self, Write};
+use std::rc::Rc;
 use vote::Vote;
 
 pub(crate) struct Event<T: NetworkEvent, P: PublicId> {
@@ -41,8 +42,8 @@ pub(crate) struct Event<T: NetworkEvent, P: PublicId> {
 impl<T: NetworkEvent, P: PublicId> Event<T, P> {
     // Creates a new event as the result of receiving a gossip request message.
     pub fn new_from_request<S: SecretId<PublicId = P>>(
-        self_parent: EventHash,
-        other_parent: EventHash,
+        self_parent: Rc<EventHash>,
+        other_parent: Rc<EventHash>,
         graph: &Graph<T, P>,
         peer_list: &PeerList<S>,
         forking_peers: &PeerIndexSet,
@@ -60,8 +61,8 @@ impl<T: NetworkEvent, P: PublicId> Event<T, P> {
 
     // Creates a new event as the result of receiving a gossip response message.
     pub fn new_from_response<S: SecretId<PublicId = P>>(
-        self_parent: EventHash,
-        other_parent: EventHash,
+        self_parent: Rc<EventHash>,
+        other_parent: Rc<EventHash>,
         graph: &Graph<T, P>,
         peer_list: &PeerList<S>,
         forking_peers: &PeerIndexSet,
@@ -79,9 +80,9 @@ impl<T: NetworkEvent, P: PublicId> Event<T, P> {
 
     // Creates a new event as the result of observing a network event.
     pub fn new_from_observation<S: SecretId<PublicId = P>>(
-        self_parent: EventHash,
+        self_parent: Rc<EventHash>,
         observation: Observation<T, P>,
-        graph: &Graph<T, P>,
+        graph: &HashMap<Rc<EventHash>, Event<T, P>>,
         peer_list: &PeerList<S>,
     ) -> Self {
         let vote = Vote::new(peer_list.our_id(), observation);
@@ -97,7 +98,7 @@ impl<T: NetworkEvent, P: PublicId> Event<T, P> {
     pub fn new_initial<S: SecretId<PublicId = P>>(peer_list: &PeerList<S>) -> Self {
         Self::new(
             Cause::Initial,
-            &Graph::new(),
+            &HashMap::new(),
             peer_list,
             &PeerIndexSet::default(),
         )
@@ -231,22 +232,12 @@ impl<T: NetworkEvent, P: PublicId> Event<T, P> {
         &self.content.creator
     }
 
-    pub fn self_parent(&self) -> Option<EventIndex> {
+    pub fn self_parent(&self) -> Option<Rc<EventHash>> {
         self.cache.self_parent
     }
 
-    pub fn other_parent(&self) -> Option<EventIndex> {
+    pub fn other_parent(&self) -> Option<Rc<EventHash>> {
         self.cache.other_parent
-    }
-
-    #[cfg(test)]
-    pub fn self_parent_hash(&self) -> Option<&EventHash> {
-        self.content.self_parent()
-    }
-
-    #[cfg(test)]
-    pub fn other_parent_hash(&self) -> Option<&EventHash> {
-        self.content.other_parent()
     }
 
     pub fn hash(&self) -> &EventHash {
@@ -467,11 +458,11 @@ pub(crate) enum CauseInput {
 // Properties of `Event` that can be computed from its `Content`.
 struct Cache {
     // Hash of `Event`s `Content`.
-    hash: EventHash,
+    hash: Rc<EventHash>,
     // EventIndex of self-parent
-    self_parent: Option<EventIndex>,
+    self_parent: Option<Rc<EventHash>>,
     // EventIndex of other-parent
-    other_parent: Option<EventIndex>,
+    other_parent: Option<Rc<EventHash>>,
     // PeerIndex of the creator
     creator: PeerIndex,
     // Index of this event relative to other events by the same creator.
@@ -486,31 +477,23 @@ struct Cache {
 
 impl Cache {
     fn new<T: NetworkEvent, S: SecretId>(
-        hash: EventHash,
+        hash: Rc<EventHash>,
         content: &Content<T, S::PublicId>,
-        self_parent: Option<IndexedEventRef<T, S::PublicId>>,
-        other_parent: Option<IndexedEventRef<T, S::PublicId>>,
+        self_parent: Option<Rc<EventHash>>,
+        other_parent: Option<Rc<EventHash>>,
         creator: PeerIndex,
         forking_peers: &PeerIndexSet,
         peer_list: &PeerList<S>,
     ) -> Self {
-        let (index_by_creator, last_ancestors) = index_by_creator_and_last_ancestors(
-            creator,
-            self_parent.map(|e| e.inner()),
-            other_parent.map(|e| e.inner()),
-            peer_list,
-        );
-        let forking_peers = join_forking_peers(
-            self_parent.map(|e| e.inner()),
-            other_parent.map(|e| e.inner()),
-            forking_peers,
-        );
+        let (index_by_creator, last_ancestors) =
+            index_by_creator_and_last_ancestors(creator, self_parent, other_parent, peer_list);
+        let forking_peers = join_forking_peers(self_parent, other_parent, forking_peers);
         let payload_hash = compute_payload_hash(&content.cause);
 
         Self {
             hash,
-            self_parent: self_parent.map(|e| e.event_index()),
-            other_parent: other_parent.map(|e| e.event_index()),
+            self_parent,
+            other_parent,
             creator,
             index_by_creator,
             last_ancestors,
@@ -520,75 +503,75 @@ impl Cache {
     }
 }
 
-type OptionalParents<'a, T, P> = (
-    Option<IndexedEventRef<'a, T, P>>,
-    Option<IndexedEventRef<'a, T, P>>,
-);
+// type OptionalParents<'a, T, P> = (
+//     Option<IndexedEventRef<'a, T, P>>,
+//     Option<IndexedEventRef<'a, T, P>>,
+// );
 
-fn get_parents<'a, T: NetworkEvent, P: PublicId>(
-    content: &Content<T, P>,
-    graph: &'a Graph<T, P>,
-    our_id: &P,
-) -> Result<OptionalParents<'a, T, P>, Error> {
-    let self_parent = get_parent(Parent::Self_, content, graph, our_id)?;
-    let other_parent = get_parent(Parent::Other, content, graph, our_id)?;
-    Ok((self_parent, other_parent))
-}
+// fn get_parents<'a, T: NetworkEvent, P: PublicId>(
+//     content: &Content<T, P>,
+//     graph: &'a Graph<T, P>,
+//     our_id: &P,
+// ) -> Result<OptionalParents<'a, T, P>, Error> {
+//     let self_parent = get_parent(Parent::Self_, content, graph, our_id)?;
+//     let other_parent = get_parent(Parent::Other, content, graph, our_id)?;
+//     Ok((self_parent, other_parent))
+// }
 
-fn get_parent<'a, T: NetworkEvent, P: PublicId>(
-    parent: Parent,
-    content: &Content<T, P>,
-    graph: &'a Graph<T, P>,
-    our_id: &P,
-) -> Result<Option<IndexedEventRef<'a, T, P>>, Error> {
-    if let Some(hash) = parent.hash(content) {
-        Ok(Some(
-            graph
-                .get_index(hash)
-                .and_then(|index| graph.get(index))
-                .ok_or_else(|| {
-                    debug!("{:?} missing {} parent for {:?}", our_id, parent, content);
-                    parent.to_unknown_error()
-                })?,
-        ))
-    } else {
-        Ok(None)
-    }
-}
+// fn get_parent<'a, T: NetworkEvent, P: PublicId>(
+//     parent: Parent,
+//     content: &Content<T, P>,
+//     graph: &'a Graph<T, P>,
+//     our_id: &P,
+// ) -> Result<Option<IndexedEventRef<'a, T, P>>, Error> {
+//     if let Some(hash) = parent.hash(content) {
+//         Ok(Some(
+//             graph
+//                 .get_index(hash)
+//                 .and_then(|index| graph.get(index))
+//                 .ok_or_else(|| {
+//                     debug!("{:?} missing {} parent for {:?}", our_id, parent, content);
+//                     parent.to_unknown_error()
+//                 })?,
+//         ))
+//     } else {
+//         Ok(None)
+//     }
+// }
 
-#[derive(Clone, Copy)]
-enum Parent {
-    Self_, // `Self` is reserved.
-    Other,
-}
+// #[derive(Clone, Copy)]
+// enum Parent {
+//     Self_, // `Self` is reserved.
+//     Other,
+// }
 
-impl Parent {
-    fn hash<'a, T: NetworkEvent, P: PublicId>(
-        self,
-        content: &'a Content<T, P>,
-    ) -> Option<&'a EventHash> {
-        match self {
-            Parent::Self_ => content.self_parent(),
-            Parent::Other => content.other_parent(),
-        }
-    }
+// impl Parent {
+//     fn hash<'a, T: NetworkEvent, P: PublicId>(
+//         self,
+//         content: &'a Content<T, P>,
+//     ) -> Option<&'a EventHash> {
+//         match self {
+//             Parent::Self_ => content.self_parent(),
+//             Parent::Other => content.other_parent(),
+//         }
+//     }
 
-    fn to_unknown_error(self) -> Error {
-        match self {
-            Parent::Self_ => Error::UnknownSelfParent,
-            Parent::Other => Error::UnknownOtherParent,
-        }
-    }
-}
+//     fn to_unknown_error(self) -> Error {
+//         match self {
+//             Parent::Self_ => Error::UnknownSelfParent,
+//             Parent::Other => Error::UnknownOtherParent,
+//         }
+//     }
+// }
 
-impl fmt::Display for Parent {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
-        match *self {
-            Parent::Self_ => write!(formatter, "self"),
-            Parent::Other => write!(formatter, "other"),
-        }
-    }
-}
+// impl fmt::Display for Parent {
+//     fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+//         match *self {
+//             Parent::Self_ => write!(formatter, "self"),
+//             Parent::Other => write!(formatter, "other"),
+//         }
+//     }
+// }
 
 fn index_by_creator_and_last_ancestors<T: NetworkEvent, S: SecretId>(
     creator: PeerIndex,
@@ -700,12 +683,7 @@ where
 mod tests {
     use super::*;
     use error::Error;
-    use gossip::{
-        cause::Cause,
-        event::Event,
-        event_hash::EventHash,
-        graph::{EventIndex, Graph},
-    };
+    use gossip::{cause::Cause, event::Event, event_hash::EventHash};
     use id::SecretId;
     use mock::{PeerId, Transaction};
     use observation::Observation;

@@ -6,8 +6,6 @@
 // KIND, either express or implied. Please review the Licences for the specific language governing
 // permissions and limitations relating to use of the SAFE Network Software.
 
-#[cfg(any(all(test, feature = "mock"), feature = "testing"))]
-use super::parse_test_dot_file;
 use super::peer::{Peer, PeerStatus};
 use super::schedule::{Schedule, ScheduleEvent, ScheduleOptions};
 use super::Observation;

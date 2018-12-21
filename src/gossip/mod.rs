@@ -23,9 +23,8 @@ pub(super) use self::event::CauseInput;
 pub(super) use self::event::LastAncestor;
 pub(super) use self::event::{Event, UnpackedEvent};
 pub use self::event_hash::EventHash;
-#[cfg(any(all(test, feature = "mock"), feature = "dump-graphs"))]
-pub(super) use self::graph::snapshot::GraphSnapshot;
-pub(super) use self::graph::{EventIndex, Graph, IndexedEventRef};
-pub use self::messages::{Request, Response};
+// #[cfg(any(all(test, feature = "mock"), feature = "dump-graphs"))]
+// pub(super) use self::graph::snapshot::GraphSnapshot;
+pub use self::messages::{PreRequest, PreResponse, Request, Response};
 pub use self::packed_event::PackedEvent;
 pub use self::split_on_first::split_on_first;

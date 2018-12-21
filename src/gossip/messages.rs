@@ -12,6 +12,21 @@ use gossip::event_hash::EventHash;
 use gossip::packed_event::PackedEvent;
 use id::PublicId;
 use network_event::NetworkEvent;
+use std::collections::BTreeMap;
+
+/// A gossip pre-request message.
+#[serde(bound = "")]
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct PreRequest<P: PublicId> {
+    pub(crate) latest_indices: BTreeMap<P, usize>,
+}
+
+/// A gossip pre-response message.
+#[serde(bound = "")]
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct PreResponse<P: PublicId> {
+    pub(crate) latest_indices: BTreeMap<P, usize>,
+}
 
 /// A gossip request message.
 #[serde(bound = "")]

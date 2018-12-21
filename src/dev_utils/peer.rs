@@ -8,7 +8,6 @@
 
 use super::Observation;
 #[cfg(any(all(test, feature = "mock"), feature = "testing"))]
-use super::ParsedContents;
 use block::Block;
 use mock::{PeerId, Transaction};
 use observation::{ConsensusMode, Malice, Observation as ParsecObservation};
