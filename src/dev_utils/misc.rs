@@ -26,7 +26,7 @@ pub trait TestIterator: Iterator {
         item
     }
 
-    fn is_sorted(mut self) -> bool
+    fn itr_is_sorted(mut self) -> bool
     where
         Self: Sized,
         Self::Item: PartialOrd,

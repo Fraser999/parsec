@@ -24,7 +24,8 @@ use crate::{
     peer_list::{PeerIndex, PeerIndexMap, PeerIndexSet, PeerList, PeerState},
     round_hash::RoundHash,
 };
-use fnv::{FnvHashMap, FnvHashSet};
+use fnv::FnvHashMap;
+use hash_hasher::{HashedMap, HashedSet};
 use itertools::Itertools;
 use pom::{
     char_class::{alphanum, digit, hex_digit, multispace, space},
@@ -977,7 +978,7 @@ fn convert_to_meta_election(
                     )
                 })
                 .collect_vec();
-            let contents: FnvHashSet<_> = indices
+            let contents: HashedSet<_> = indices
                 .iter()
                 .filter_map(|index| meta_events.get(index))
                 .flat_map(|meta_event| &meta_event.interesting_content)
@@ -1005,7 +1006,7 @@ fn convert_to_meta_election(
         })
         .filter_map(|(event_index, payload_key)| payload_key.map(|key| (event_index, key)))
         .fold(
-            FnvHashMap::default(),
+            HashedMap::default(),
             |mut map, (event_index, payload_key)| {
                 let _ = map
                     .entry(payload_key)

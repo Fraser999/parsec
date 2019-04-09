@@ -389,7 +389,7 @@ mod tests {
             for peer_id in ordering {
                 let _ = map.insert(*peer_id, ());
             }
-            assert!(map.iter().is_sorted())
+            assert!(map.iter().itr_is_sorted())
         }
     }
 }

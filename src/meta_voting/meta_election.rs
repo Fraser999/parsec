@@ -17,7 +17,8 @@ use crate::{
     peer_list::{PeerIndex, PeerIndexMap, PeerIndexSet, PeerListChange},
     round_hash::RoundHash,
 };
-use fnv::{FnvHashMap, FnvHashSet};
+use fnv::FnvHashMap;
+use hash_hasher::{HashedMap, HashedSet};
 use std::{cmp, collections::BTreeSet, usize};
 
 lazy_static! {
@@ -29,7 +30,7 @@ pub(crate) struct UnconsensusedEvents {
     // Set of all events that carry a payload that hasn't yet been consensused.
     pub(crate) ordered_indices: BTreeSet<EventIndex>,
     // Same events grouped by ObservationKey for lookup performance,
-    pub(crate) indices_by_key: FnvHashMap<ObservationKey, BTreeSet<EventIndex>>,
+    pub(crate) indices_by_key: HashedMap<ObservationKey, BTreeSet<EventIndex>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -44,7 +45,7 @@ pub(crate) struct MetaElection {
     pub(crate) voters: PeerIndexSet,
     // The indices of events for each peer that have a non-empty set of `interesting_content`.
     // The second element allow fast lookup for existing interesting_content.
-    pub(crate) interesting_events: PeerIndexMap<(Vec<EventIndex>, FnvHashSet<ObservationKey>)>,
+    pub(crate) interesting_events: PeerIndexMap<(Vec<EventIndex>, HashedSet<ObservationKey>)>,
     // All events that carry a payload that hasn't yet been consensused.
     pub(crate) unconsensused_events: UnconsensusedEvents,
     // Keys of the consensused blocks' payloads in the order they were consensused.
@@ -243,7 +244,7 @@ impl MetaElection {
         let (indices, contents) = self
             .interesting_events
             .entry(creator)
-            .or_insert_with(|| (Vec::new(), FnvHashSet::default()));
+            .or_insert_with(|| (Vec::new(), HashedSet::default()));
         indices.push(event_index);
         contents.extend(interesting_content);
     }
@@ -313,7 +314,7 @@ impl MetaElection {
             self.meta_events.retain(|event_index, _| {
                 event_index.topological_index() >= new_consensus_start_index
             });
-            let decided_keys_lookup: FnvHashSet<_> = decided_keys.iter().collect();
+            let decided_keys_lookup: HashedSet<_> = decided_keys.iter().collect();
             for meta_event in self.meta_events.values_mut() {
                 meta_event
                     .interesting_content

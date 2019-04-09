@@ -36,7 +36,7 @@ use crate::{
     hash::Hash,
     mock::{PeerId, Transaction},
 };
-use fnv::FnvHashSet;
+use hash_hasher::HashedSet;
 use itertools::Itertools;
 #[cfg(any(test, feature = "testing"))]
 use std::ops::{Deref, DerefMut};
@@ -1386,7 +1386,7 @@ impl<T: NetworkEvent, S: SecretId> Parsec<T, S> {
             .collect_vec();
 
         let mut all_payloads_in_order = Vec::new();
-        let mut all_payloads_lookup: FnvHashSet<&ObservationKey> = FnvHashSet::default();
+        let mut all_payloads_lookup: HashedSet<&ObservationKey> = HashedSet::default();
 
         // First, process the first payloads from each decided meta events and append the ordered result to
         // the end of `all_payloads_in_order`. Then, skipping any payload already in `all_payloads_in_order`/
@@ -1406,7 +1406,7 @@ impl<T: NetworkEvent, S: SecretId> Parsec<T, S> {
     fn next_payload_batch_for_consensus_with_count<'a>(
         &self,
         payload_iters: &mut [impl Iterator<Item = &'a ObservationKey>],
-        processed_payloads: &FnvHashSet<&ObservationKey>,
+        processed_payloads: &HashedSet<&ObservationKey>,
     ) -> Option<BTreeMap<&'a ObservationKey, i32>> {
         let payloads_counts = payload_iters
             .iter_mut()
