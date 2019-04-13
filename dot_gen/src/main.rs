@@ -594,7 +594,7 @@ impl Scenario {
         println!("Running scenario {}", self.name);
         {
             DUMP_MODE.with(|mode| {
-                *mode.borrow_mut() = self.dump_mode.clone();
+                *mode.borrow_mut() = self.dump_mode;
             });
 
             let mut env = Environment::with_consensus_mode(self.seed, self.consensus_mode);

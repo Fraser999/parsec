@@ -18,7 +18,7 @@ impl RngDebug for XorShiftRng {}
 
 pub struct Environment {
     pub network: Network,
-    pub rng: Box<RngDebug>,
+    pub rng: Box<dyn RngDebug>,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -33,7 +33,7 @@ impl Environment {
     /// Initialise the test environment. The random number generator will be seeded with `seed`
     /// or randomly if this is `SeededRandom`.
     pub fn with_consensus_mode(seed: RngChoice, consensus_mode: ConsensusMode) -> Self {
-        let rng: Box<RngDebug> = match seed {
+        let rng: Box<dyn RngDebug> = match seed {
             RngChoice::SeededRandom => Box::new(SeededRng::new()),
             RngChoice::Seeded(seed) => Box::new(SeededRng::from_seed(seed)),
             RngChoice::SeededXor(seed) => {

@@ -10,7 +10,7 @@ use super::{Graph, IndexedEventRef};
 use crate::id::PublicId;
 use std::collections::BTreeSet;
 
-pub(crate) struct Ancestors<'a, P: PublicId + 'a> {
+pub(crate) struct Ancestors<'a, P: PublicId> {
     pub(super) graph: &'a Graph<P>,
     pub(super) queue: BTreeSet<IndexedEventRef<'a, P>>,
     pub(super) visited: Vec<bool>, // TODO: replace with bitset, for space efficiency

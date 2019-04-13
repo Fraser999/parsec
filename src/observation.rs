@@ -166,7 +166,7 @@ impl<T: NetworkEvent, P: PublicId> Malice<T, P> {
 }
 
 // For internal diagnostics only. The value is ignored in comparison, ordering or hashing.
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum UnprovableMalice {
     // A node is spamming us.
     Spam,
@@ -208,7 +208,7 @@ impl<'a> Deserialize<'a> for UnprovableMalice {
 
 struct UnprovableMaliceVisitor;
 
-impl<'a> Visitor<'a> for UnprovableMaliceVisitor {
+impl Visitor<'_> for UnprovableMaliceVisitor {
     type Value = UnprovableMalice;
 
     fn expecting(&self, formatter: &mut Formatter) -> fmt::Result {

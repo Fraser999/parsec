@@ -18,13 +18,13 @@ use std::{
 
 /// Reference to `Event` together with its index.
 #[derive(Clone, Debug)]
-pub(crate) struct IndexedEventRef<'a, P: PublicId + 'a> {
+pub(crate) struct IndexedEventRef<'a, P: PublicId> {
     pub(super) index: EventIndex,
     pub(super) event: &'a Event<P>,
 }
 
 // Note: for some reason #[derive(Copy)] doesn't work.
-impl<'a, P: PublicId> Copy for IndexedEventRef<'a, P> {}
+impl<P: PublicId> Copy for IndexedEventRef<'_, P> {}
 
 impl<'a, P: PublicId> IndexedEventRef<'a, P> {
     pub fn event_index(&self) -> EventIndex {
@@ -42,7 +42,7 @@ impl<'a, P: PublicId> IndexedEventRef<'a, P> {
     }
 }
 
-impl<'a, P: PublicId> Deref for IndexedEventRef<'a, P> {
+impl<P: PublicId> Deref for IndexedEventRef<'_, P> {
     type Target = Event<P>;
 
     fn deref(&self) -> &Self::Target {
@@ -50,27 +50,27 @@ impl<'a, P: PublicId> Deref for IndexedEventRef<'a, P> {
     }
 }
 
-impl<'a, P: PublicId> AsRef<Event<P>> for IndexedEventRef<'a, P> {
+impl<P: PublicId> AsRef<Event<P>> for IndexedEventRef<'_, P> {
     fn as_ref(&self) -> &Event<P> {
         self.event
     }
 }
 
-impl<'a, P: PublicId> PartialEq for IndexedEventRef<'a, P> {
+impl<P: PublicId> PartialEq for IndexedEventRef<'_, P> {
     fn eq(&self, other: &Self) -> bool {
         self.index == other.index
     }
 }
 
-impl<'a, P: PublicId> Eq for IndexedEventRef<'a, P> {}
+impl<P: PublicId> Eq for IndexedEventRef<'_, P> {}
 
-impl<'a, P: PublicId> PartialOrd for IndexedEventRef<'a, P> {
+impl<P: PublicId> PartialOrd for IndexedEventRef<'_, P> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.index.partial_cmp(&other.index)
     }
 }
 
-impl<'a, P: PublicId> Ord for IndexedEventRef<'a, P> {
+impl<P: PublicId> Ord for IndexedEventRef<'_, P> {
     fn cmp(&self, other: &Self) -> Ordering {
         self.index.cmp(&other.index)
     }

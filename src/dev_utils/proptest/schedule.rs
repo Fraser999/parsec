@@ -143,7 +143,7 @@ impl Strategy for ScheduleOptionsStrategy {
 pub struct ScheduleOptionsValueTree {
     max_sched: ScheduleOptions,
     min_sched: ScheduleOptions,
-    generator: Box<ValueTree<Value = ScheduleOptions>>,
+    generator: Box<dyn ValueTree<Value = ScheduleOptions>>,
 }
 
 impl Bounded for ScheduleOptionsValueTree {

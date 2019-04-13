@@ -84,7 +84,7 @@ mod full {
 
     pub struct FullDisplay<'a>(pub &'a Hash);
 
-    impl<'a> Display for FullDisplay<'a> {
+    impl Display for FullDisplay<'_> {
         fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
             for byte in &(self.0).0 {
                 write!(formatter, "{:02x}", byte)?;

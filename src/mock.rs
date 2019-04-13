@@ -32,7 +32,7 @@ lazy_static! {
 }
 
 /// **NOT FOR PRODUCTION USE**: Mock signature type.
-#[derive(Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Signature(SafeSignature);
 
 impl Debug for Signature {

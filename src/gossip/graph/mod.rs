@@ -333,7 +333,7 @@ impl<'a, P: PublicId> IntoIterator for &'a Graph<P> {
     }
 }
 
-pub(crate) struct Iter<'a, P: PublicId + 'a> {
+pub(crate) struct Iter<'a, P: PublicId> {
     events: &'a [Event<P>],
     index: usize,
 }

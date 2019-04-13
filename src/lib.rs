@@ -114,47 +114,51 @@
     html_favicon_url = "https://maidsafe.net/img/favicon.ico",
     test(attr(forbid(warnings)))
 )]
-#![forbid(
-    exceeding_bitshifts,
-    mutable_transmutes,
-    no_mangle_const_items,
-    unknown_crate_types,
-    warnings
-)]
+#![warn(unused, missing_docs)]
 #![deny(
-    bad_style,
-    deprecated,
-    improper_ctypes,
-    missing_docs,
-    non_shorthand_field_patterns,
-    overflowing_literals,
-    plugin_as_library,
-    stable_features,
-    unconditional_recursion,
-    unknown_lints,
-    unsafe_code,
-    unused,
-    unused_allocation,
-    unused_attributes,
-    unused_comparisons,
-    unused_features,
-    unused_parens,
-    while_true
-)]
-#![warn(
+    deprecated_in_future,
+    future_incompatible,
+    missing_copy_implementations,
+    macro_use_extern_crate,
+    rust_2018_idioms,
+    nonstandard_style,
+    single_use_lifetimes,
     trivial_casts,
     trivial_numeric_casts,
-    unused_extern_crates,
+    unreachable_pub,
+    unsafe_code,
+    unstable_features,
     unused_import_braces,
+    unused_lifetimes,
     unused_qualifications,
-    unused_results
+    unused_results,
+    warnings
 )]
+#![forbid(
+    const_err,
+    duplicate_macro_exports,
+    exceeding_bitshifts,
+    incoherent_fundamental_impls,
+    invalid_type_param_default,
+    legacy_constructor_visibility,
+    legacy_directory_ownership,
+    macro_expanded_macro_exports_accessed_by_absolute_paths,
+    missing_fragment_specifier,
+    mutable_transmutes,
+    no_mangle_const_items,
+    order_dependent_trait_objects,
+    overflowing_literals,
+    parenthesized_params_in_types_and_modules,
+    pub_use_of_private_extern_crate,
+    safe_extern_statics,
+    unknown_crate_types
+)]
+// TODO - remove these
 #![allow(
-    box_pointers,
-    missing_copy_implementations,
-    missing_debug_implementations,
-    variant_size_differences,
-    clippy::new_ret_no_self
+    elided_lifetimes_in_paths,
+    macro_use_extern_crate,
+    single_use_lifetimes,
+    unreachable_pub
 )]
 
 #[macro_use]
@@ -206,6 +210,7 @@ pub mod mock;
 
 #[cfg(feature = "dump-graphs")]
 pub use crate::dump_graph::{DumpGraphMode, DIR, DUMP_MODE};
+
 pub use crate::{
     block::Block,
     error::{Error, Result},

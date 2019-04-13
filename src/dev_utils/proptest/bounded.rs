@@ -92,7 +92,7 @@ pub struct BoundedBoxedStrategy<T: Debug> {
 
 impl<T: Debug> Strategy for BoundedBoxedStrategy<T> {
     type Value = T;
-    type Tree = Box<ValueTree<Value = T>>;
+    type Tree = Box<dyn ValueTree<Value = T>>;
 
     fn new_tree(&self, runner: &mut TestRunner) -> NewTree<Self> {
         self.strategy.new_tree(runner)

@@ -13,7 +13,7 @@ use std::{
 };
 
 /// Parsec error
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub enum Error {
     /// Payload of a `Vote` doesn't match the payload of a `Block`.
     MismatchedPayload,

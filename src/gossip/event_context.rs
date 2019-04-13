@@ -24,7 +24,7 @@ pub(crate) struct EventContextRef<'a, T: NetworkEvent, S: SecretId> {
 }
 
 // `#[derive(Clone)]` doesn't work here for some reason...
-impl<'a, T: NetworkEvent, S: SecretId> Clone for EventContextRef<'a, T, S> {
+impl<T: NetworkEvent, S: SecretId> Clone for EventContextRef<'_, T, S> {
     fn clone(&self) -> Self {
         Self {
             graph: self.graph,
@@ -36,7 +36,7 @@ impl<'a, T: NetworkEvent, S: SecretId> Clone for EventContextRef<'a, T, S> {
 }
 
 // ...neither does `#[derive(Copy)]`.
-impl<'a, T: NetworkEvent, S: SecretId> Copy for EventContextRef<'a, T, S> {}
+impl<T: NetworkEvent, S: SecretId> Copy for EventContextRef<'_, T, S> {}
 
 #[cfg(test)]
 mod tests {

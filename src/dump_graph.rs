@@ -153,7 +153,7 @@ mod detail {
         };
 
         /// Which dumps to output
-        pub static DUMP_MODE: RefCell<DumpGraphMode> = RefCell::new(DUMP_GRAPH_MODE.clone());
+        pub static DUMP_MODE: RefCell<DumpGraphMode> = RefCell::new(*DUMP_GRAPH_MODE);
     );
 
     thread_local!(static DUMP_COUNTS: RefCell<BTreeMap<String, usize>> =
@@ -161,7 +161,7 @@ mod detail {
 
     /// To control the dump graph behaviour.
     /// In all modes, also dump when parsec is dropped if panicking.
-    #[derive(Clone)]
+    #[derive(Clone, Copy)]
     pub enum DumpGraphMode {
         /// Only dump on consensus.
         OnConsensus,
@@ -373,7 +373,7 @@ mod detail {
         lines
     }
 
-    struct DotWriter<'a, S: SecretId + 'a> {
+    struct DotWriter<'a, S: SecretId> {
         file: BufWriter<File>,
         consensus_mode: ConsensusMode,
         gossip_graph: &'a Graph<S::PublicId>,

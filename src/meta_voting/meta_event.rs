@@ -97,7 +97,7 @@ impl MetaEvent {
     }
 }
 
-pub(crate) struct MetaEventBuilder<'a, P: PublicId + 'a> {
+pub(crate) struct MetaEventBuilder<'a, P: PublicId> {
     event: IndexedEventRef<'a, P>,
     meta_event: MetaEvent,
     new: bool,
