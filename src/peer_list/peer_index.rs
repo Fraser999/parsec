@@ -50,7 +50,7 @@ impl<T> PeerIndexMap<T> {
         self.0.iter().all(Option::is_none)
     }
 
-    pub fn iter(&self) -> MapIter<T> {
+    pub fn iter(&self) -> MapIter<'_, T> {
         MapIter {
             map: self,
             current: 0,
@@ -74,7 +74,7 @@ impl<T> PeerIndexMap<T> {
         self.0.clear()
     }
 
-    pub fn entry(&mut self, key: PeerIndex) -> Entry<T> {
+    pub fn entry(&mut self, key: PeerIndex) -> Entry<'_, T> {
         if self.contains_key(key) {
             Entry::Occupied(OccupiedEntry { key, map: self })
         } else {
@@ -112,7 +112,7 @@ impl<T> FromIterator<(PeerIndex, T)> for PeerIndexMap<T> {
 }
 
 impl<T: Debug> Debug for PeerIndexMap<T> {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_map().entries(self.iter()).finish()
     }
 }
@@ -219,7 +219,7 @@ impl PeerIndexSet {
         self.0.iter().filter(|value| **value).count()
     }
 
-    pub fn iter(&self) -> SetIter {
+    pub fn iter(&self) -> SetIter<'_> {
         SetIter {
             set: self,
             current: 0,
@@ -282,7 +282,7 @@ impl Extend<PeerIndex> for PeerIndexSet {
 }
 
 impl Debug for PeerIndexSet {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_set().entries(self.iter()).finish()
     }
 }

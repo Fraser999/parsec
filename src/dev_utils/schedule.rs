@@ -502,7 +502,7 @@ pub struct Schedule {
 }
 
 impl fmt::Debug for Schedule {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "----------------------------")?;
         writeln!(f, " Schedule:")?;
         for event in &self.events {

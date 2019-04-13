@@ -406,11 +406,11 @@ mod detail {
                 .map(|event| self.event_to_short_name(event))
         }
 
-        fn event_to_short_name(&self, event: IndexedEventRef<S::PublicId>) -> String {
+        fn event_to_short_name(&self, event: IndexedEventRef<'_, S::PublicId>) -> String {
             sanitise_event_short_name(event, &self.peer_list, &self.short_peer_ids)
         }
 
-        fn writeln(&mut self, args: fmt::Arguments) -> io::Result<()> {
+        fn writeln(&mut self, args: fmt::Arguments<'_>) -> io::Result<()> {
             writeln!(self.file, "{}", args)
         }
 
@@ -647,7 +647,7 @@ mod detail {
 
         pub fn write_cause_to_dot_format(
             &mut self,
-            event: &IndexedEventRef<S::PublicId>,
+            event: &IndexedEventRef<'_, S::PublicId>,
         ) -> io::Result<()> {
             let mut buffer;
             let cause = match event.cause() {
@@ -974,7 +974,7 @@ mod detail {
     }
 
     impl Debug for DotPeerId {
-        fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+        fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
             write!(formatter, "{}", self.value)
         }
     }
@@ -986,7 +986,7 @@ mod detail {
     }
 
     impl Debug for DotObservation {
-        fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+        fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
             write!(formatter, "{}", self.value)
         }
     }
@@ -1084,7 +1084,7 @@ mod detail {
     }
 
     fn fork_index<S: SecretId>(
-        event: IndexedEventRef<S::PublicId>,
+        event: IndexedEventRef<'_, S::PublicId>,
         peer_list: &PeerList<S>,
     ) -> Option<usize> {
         if peer_list
@@ -1102,7 +1102,7 @@ mod detail {
     }
 
     fn sanitise_event_short_name<S: SecretId>(
-        event: IndexedEventRef<S::PublicId>,
+        event: IndexedEventRef<'_, S::PublicId>,
         peer_list: &PeerList<S>,
         short_peer_ids: &PeerIndexMap<String>,
     ) -> String {

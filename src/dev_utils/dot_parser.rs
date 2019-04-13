@@ -786,7 +786,7 @@ impl ParsedContents {
     }
 
     #[cfg(any(all(test, feature = "mock"), feature = "testing"))]
-    pub fn event_context(&self) -> EventContextRef<Transaction, PeerId> {
+    pub fn event_context(&self) -> EventContextRef<'_, Transaction, PeerId> {
         EventContextRef {
             graph: &self.graph,
             peer_list: &self.peer_list,

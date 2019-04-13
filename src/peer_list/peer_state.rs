@@ -71,7 +71,7 @@ impl BitOrAssign for PeerState {
 }
 
 impl Debug for PeerState {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut separator = false;
 
         write!(f, "PeerState(")?;

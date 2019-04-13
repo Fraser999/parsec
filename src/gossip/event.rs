@@ -47,7 +47,7 @@ impl<P: PublicId> Event<P> {
     pub fn new_from_requesting<T: NetworkEvent, S: SecretId<PublicId = P>>(
         self_parent: EventIndex,
         recipient: &P,
-        ctx: EventContextRef<T, S>,
+        ctx: EventContextRef<'_, T, S>,
     ) -> Result<Self, Error> {
         let content: Content<Vote<T, _>, _, _> = Content {
             creator: ctx.peer_list.our_pub_id().clone(),
@@ -78,7 +78,7 @@ impl<P: PublicId> Event<P> {
     pub fn new_from_request<T: NetworkEvent, S: SecretId<PublicId = P>>(
         self_parent: EventIndex,
         other_parent: EventIndex,
-        ctx: EventContextRef<T, S>,
+        ctx: EventContextRef<'_, T, S>,
     ) -> Result<Self, Error> {
         let content: Content<Vote<T, _>, _, _> = Content {
             creator: ctx.peer_list.our_pub_id().clone(),
@@ -110,7 +110,7 @@ impl<P: PublicId> Event<P> {
     pub fn new_from_response<T: NetworkEvent, S: SecretId<PublicId = P>>(
         self_parent: EventIndex,
         other_parent: EventIndex,
-        ctx: EventContextRef<T, S>,
+        ctx: EventContextRef<'_, T, S>,
     ) -> Result<Self, Error> {
         let content: Content<Vote<T, _>, _, _> = Content {
             creator: ctx.peer_list.our_pub_id().clone(),
@@ -142,7 +142,7 @@ impl<P: PublicId> Event<P> {
     pub fn new_from_observation<T: NetworkEvent, S: SecretId<PublicId = P>>(
         self_parent: EventIndex,
         observation: Observation<T, P>,
-        ctx: EventContextRef<T, S>,
+        ctx: EventContextRef<'_, T, S>,
     ) -> Result<(Self, ObservationForStore<T, P>), Error> {
         // Compute event hash + signature.
         let vote = Vote::new(ctx.peer_list.our_id(), observation);
@@ -166,7 +166,7 @@ impl<P: PublicId> Event<P> {
 
     // Creates an initial event.  This is the first event by its creator in the graph.
     pub fn new_initial<T: NetworkEvent, S: SecretId<PublicId = P>>(
-        ctx: EventContextRef<T, S>,
+        ctx: EventContextRef<'_, T, S>,
     ) -> Self {
         let content: Content<Vote<T, _>, _, _> = Content {
             creator: ctx.peer_list.our_pub_id().clone(),
@@ -206,7 +206,7 @@ impl<P: PublicId> Event<P> {
     //     ancestor isn't in `events`.
     pub fn unpack<T: NetworkEvent, S: SecretId<PublicId = P>>(
         packed_event: PackedEvent<T, P>,
-        ctx: EventContextRef<T, S>,
+        ctx: EventContextRef<'_, T, S>,
     ) -> Result<Option<UnpackedEvent<T, P>>, Error> {
         let hash = compute_event_hash_and_verify_signature(
             &packed_event.content,
@@ -235,7 +235,7 @@ impl<P: PublicId> Event<P> {
     // Creates a `PackedEvent` from this `Event`.
     pub fn pack<T: NetworkEvent, S: SecretId<PublicId = P>>(
         &self,
-        ctx: EventContextRef<T, S>,
+        ctx: EventContextRef<'_, T, S>,
     ) -> Result<PackedEvent<T, P>, Error> {
         Ok(PackedEvent {
             content: self.content.pack(ctx)?,
@@ -444,7 +444,7 @@ impl<P: PublicId> PartialEq for Event<P> {
 impl<P: PublicId> Eq for Event<P> {}
 
 impl<P: PublicId> Debug for Event<P> {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         write!(formatter, "Event{{")?;
 
         #[cfg(any(test, feature = "testing"))]
@@ -481,7 +481,7 @@ impl<P: PublicId> Debug for Event<P> {
 struct EntryDebug<K: Debug, V: Debug>(K, V);
 
 impl<K: Debug, V: Debug> Debug for EntryDebug<K, V> {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         write!(formatter, "{:?}: {:?}", self.0, self.1)
     }
 }
@@ -687,13 +687,13 @@ pub(crate) struct ShortName {
 }
 
 impl Display for ShortName {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{}_{}", self.creator_initial, self.index_by_creator)
     }
 }
 
 impl Debug for ShortName {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "\"{}\"", self)
     }
 }
@@ -756,8 +756,8 @@ mod tests {
 
     fn convert_event(
         event: &Event<PeerId>,
-        src: EventContextRef<Transaction, PeerId>,
-        dst: EventContextRef<Transaction, PeerId>,
+        src: EventContextRef<'_, Transaction, PeerId>,
+        dst: EventContextRef<'_, Transaction, PeerId>,
     ) -> Event<PeerId> {
         let e = unwrap!(event.pack(src));
         unwrap!(unwrap!(Event::unpack(e, dst))).event

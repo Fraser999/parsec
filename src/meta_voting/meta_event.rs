@@ -66,7 +66,7 @@ impl Observer {
 }
 
 impl MetaEvent {
-    pub fn build<P: PublicId>(event: IndexedEventRef<P>) -> MetaEventBuilder<P> {
+    pub fn build<P: PublicId>(event: IndexedEventRef<'_, P>) -> MetaEventBuilder<'_, P> {
         MetaEventBuilder {
             event,
             meta_event: MetaEvent {
@@ -78,7 +78,10 @@ impl MetaEvent {
         }
     }
 
-    pub fn rebuild<P: PublicId>(mut self, event: IndexedEventRef<P>) -> MetaEventBuilder<P> {
+    pub fn rebuild<P: PublicId>(
+        mut self,
+        event: IndexedEventRef<'_, P>,
+    ) -> MetaEventBuilder<'_, P> {
         self.meta_votes.clear();
 
         MetaEventBuilder {

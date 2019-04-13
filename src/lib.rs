@@ -154,12 +154,7 @@
     unknown_crate_types
 )]
 // TODO - remove these
-#![allow(
-    elided_lifetimes_in_paths,
-    macro_use_extern_crate,
-    single_use_lifetimes,
-    unreachable_pub
-)]
+#![allow(macro_use_extern_crate, single_use_lifetimes, unreachable_pub)]
 
 #[macro_use]
 extern crate lazy_static;

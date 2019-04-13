@@ -23,7 +23,7 @@ pub(crate) struct MetaVote {
     pub decision: Option<bool>,
 }
 
-fn write_bool(f: &mut Formatter, a_bool: bool) -> fmt::Result {
+fn write_bool(f: &mut Formatter<'_>, a_bool: bool) -> fmt::Result {
     if a_bool {
         write!(f, "t")
     } else {
@@ -31,7 +31,7 @@ fn write_bool(f: &mut Formatter, a_bool: bool) -> fmt::Result {
     }
 }
 
-fn write_multiple_bool_values(f: &mut Formatter, field: &str, input: BoolSet) -> fmt::Result {
+fn write_multiple_bool_values(f: &mut Formatter<'_>, field: &str, input: BoolSet) -> fmt::Result {
     write!(f, "{}:{{", field)?;
     match input {
         BoolSet::Empty => (),
@@ -48,7 +48,7 @@ fn write_multiple_bool_values(f: &mut Formatter, field: &str, input: BoolSet) ->
 }
 
 fn write_optional_single_bool_value(
-    f: &mut Formatter,
+    f: &mut Formatter<'_>,
     field: &str,
     value: Option<bool>,
 ) -> fmt::Result {
@@ -60,7 +60,7 @@ fn write_optional_single_bool_value(
 }
 
 impl Debug for MetaVote {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{{ {}/{:?}, ", self.round, self.step)?;
 
         write_multiple_bool_values(f, "est", self.estimates)?;
@@ -350,7 +350,7 @@ impl Default for Step {
 }
 
 impl Debug for Step {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let step = match self {
             Step::ForcedTrue => 0,
             Step::ForcedFalse => 1,

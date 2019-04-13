@@ -223,7 +223,7 @@ fn extract_genesis_group<'a>(
 
 fn collect_events_to_gossip(
     contents: &ParsedContents,
-    other_parent: IndexedEventRef<PeerId>,
+    other_parent: IndexedEventRef<'_, PeerId>,
     known: &mut Vec<bool>,
 ) -> Vec<PackedEvent<Transaction, PeerId>> {
     let mut events_to_gossip = Vec::new();

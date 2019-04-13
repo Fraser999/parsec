@@ -70,7 +70,7 @@ impl<V, E, P> Content<V, E, P> {
 impl<P: PublicId> Content<VoteKey<P>, EventIndex, PeerIndex> {
     pub(crate) fn unpack<T: NetworkEvent, S: SecretId<PublicId = P>>(
         packed_content: Content<Vote<T, P>, EventHash, P>,
-        ctx: EventContextRef<T, S>,
+        ctx: EventContextRef<'_, T, S>,
     ) -> Result<(Self, ObservationForStore<T, P>), Error> {
         let creator = ctx
             .peer_list
@@ -83,7 +83,7 @@ impl<P: PublicId> Content<VoteKey<P>, EventIndex, PeerIndex> {
 
     pub(crate) fn pack<T: NetworkEvent, S: SecretId<PublicId = P>>(
         &self,
-        ctx: EventContextRef<T, S>,
+        ctx: EventContextRef<'_, T, S>,
     ) -> Result<Content<Vote<T, P>, EventHash, P>, Error> {
         Ok(Content {
             creator: ctx

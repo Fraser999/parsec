@@ -61,7 +61,7 @@ impl<T: NetworkEvent, P: PublicId> Vote<T, P> {
 }
 
 impl<T: NetworkEvent, P: PublicId> Debug for Vote<T, P> {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self.payload)
     }
 }
@@ -111,7 +111,7 @@ impl<P: PublicId> VoteKey<P> {
 }
 
 impl<P: PublicId> Debug for VoteKey<P> {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self.payload_key)
     }
 }

@@ -14,7 +14,7 @@ use std::fmt::{self, Debug, Formatter};
 pub struct EventHash(pub(super) Hash);
 
 impl Debug for EventHash {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         self.0.fmt(formatter)
     }
 }

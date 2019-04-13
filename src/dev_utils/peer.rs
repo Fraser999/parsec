@@ -547,7 +547,7 @@ impl Peer {
 }
 
 impl Debug for Peer {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         let malicious = if self.is_malicious() {
             "(MALICIOUS) "
         } else {

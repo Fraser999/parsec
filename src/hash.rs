@@ -56,7 +56,7 @@ impl<'a> From<&'a [u8]> for Hash {
 
 impl Debug for Hash {
     #[cfg(any(test, feature = "testing", feature = "dump-graphs"))]
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         write!(
             formatter,
             "{:02x}{:02x}{:02x}{:02x}{:02x}..",
@@ -65,7 +65,7 @@ impl Debug for Hash {
     }
 
     #[cfg(not(any(test, feature = "testing", feature = "dump-graphs")))]
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         write!(formatter, "{}", self::full::FullDisplay(self))
     }
 }
@@ -77,7 +77,7 @@ mod full {
 
     #[cfg(feature = "dump-graphs")]
     impl Hash {
-        pub fn full_display(&self) -> FullDisplay {
+        pub fn full_display(&self) -> FullDisplay<'_> {
             FullDisplay(self)
         }
     }
@@ -85,7 +85,7 @@ mod full {
     pub struct FullDisplay<'a>(pub &'a Hash);
 
     impl Display for FullDisplay<'_> {
-        fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+        fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
             for byte in &(self.0).0 {
                 write!(formatter, "{:02x}", byte)?;
             }

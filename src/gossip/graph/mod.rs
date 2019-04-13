@@ -69,7 +69,7 @@ impl<P: PublicId> Graph<P> {
     ///
     /// If the event is a `Request` or `Response`, the other_parent is removed from
     /// `awaiting_associated_events`.
-    pub fn insert(&mut self, event: Event<P>) -> IndexedEventRef<P> {
+    pub fn insert(&mut self, event: Event<P>) -> IndexedEventRef<'_, P> {
         let index = match self.indices.entry(*event.hash()) {
             Entry::Occupied(entry) => *entry.get(),
             Entry::Vacant(entry) => {
@@ -95,7 +95,7 @@ impl<P: PublicId> Graph<P> {
     }
 
     /// Gets `Event` with the given `index`, if it exists.
-    pub fn get(&self, index: EventIndex) -> Option<IndexedEventRef<P>> {
+    pub fn get(&self, index: EventIndex) -> Option<IndexedEventRef<'_, P>> {
         self.events
             .get(index.0)
             .map(|event| IndexedEventRef { index, event })
@@ -112,12 +112,12 @@ impl<P: PublicId> Graph<P> {
     }
 
     /// Iterator over all events in this graph. Yields `IndexedEventRef`s.
-    pub fn iter(&self) -> Iter<P> {
+    pub fn iter(&self) -> Iter<'_, P> {
         self.iter_from(0)
     }
 
     /// Iterator over events in this graph starting at the given topological index.
-    pub fn iter_from(&self, start_index: usize) -> Iter<P> {
+    pub fn iter_from(&self, start_index: usize) -> Iter<'_, P> {
         Iter {
             events: &self.events,
             index: start_index,
@@ -130,7 +130,7 @@ impl<P: PublicId> Graph<P> {
     }
 
     /// Returns self-parent of the given event, if any.
-    pub fn self_parent<E: AsRef<Event<P>>>(&self, event: E) -> Option<IndexedEventRef<P>> {
+    pub fn self_parent<E: AsRef<Event<P>>>(&self, event: E) -> Option<IndexedEventRef<'_, P>> {
         event
             .as_ref()
             .self_parent()
@@ -138,7 +138,7 @@ impl<P: PublicId> Graph<P> {
     }
 
     /// Returns other-parent of the given event, if any.
-    pub fn other_parent<E: AsRef<Event<P>>>(&self, event: E) -> Option<IndexedEventRef<P>> {
+    pub fn other_parent<E: AsRef<Event<P>>>(&self, event: E) -> Option<IndexedEventRef<'_, P>> {
         event
             .as_ref()
             .other_parent()
@@ -146,7 +146,7 @@ impl<P: PublicId> Graph<P> {
     }
 
     /// Returns the first self-parent of the given event, that is a sync_event.
-    pub fn self_sync_parent<E: AsRef<Event<P>>>(&self, event: E) -> Option<IndexedEventRef<P>> {
+    pub fn self_sync_parent<E: AsRef<Event<P>>>(&self, event: E) -> Option<IndexedEventRef<'_, P>> {
         let mut event = event.as_ref();
         while let Some(parent) = event.self_parent().and_then(|index| self.get(index)) {
             if parent.is_sync_event() {
@@ -187,7 +187,7 @@ impl<P: PublicId> Graph<P> {
 impl<P: PublicId> Graph<P> {
     /// Returns true if the event specified by `index` should eventually but still doesn't have an
     /// associated `Request` or `Response` added to the graph.
-    pub fn is_awaiting_associated_event(&self, event: IndexedEventRef<P>) -> bool {
+    pub fn is_awaiting_associated_event(&self, event: IndexedEventRef<'_, P>) -> bool {
         self.awaiting_associated_events.contains(&event.index)
     }
 

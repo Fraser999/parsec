@@ -208,7 +208,7 @@ impl Slot {
 }
 
 impl Debug for Slot {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self.iter().format(", "))
     }
 }

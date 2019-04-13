@@ -66,7 +66,7 @@ impl IndexSet {
 }
 
 impl Debug for IndexSet {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         let values = self.0.iter().collect::<BTreeSet<_>>();
         write!(formatter, "{}", values.iter().format(", "))
     }

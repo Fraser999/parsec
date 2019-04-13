@@ -51,7 +51,7 @@ impl<P: PublicId> Cause<VoteKey<P>, EventIndex, PeerIndex> {
     pub(crate) fn unpack<T: NetworkEvent, S: SecretId<PublicId = P>>(
         packed_cause: Cause<Vote<T, P>, EventHash, P>,
         creator: PeerIndex,
-        ctx: EventContextRef<T, S>,
+        ctx: EventContextRef<'_, T, S>,
     ) -> Result<(Self, ObservationForStore<T, P>), Error> {
         let cause = match packed_cause {
             Cause::Requesting {
@@ -106,7 +106,7 @@ impl<P: PublicId> Cause<VoteKey<P>, EventIndex, PeerIndex> {
 
     pub(crate) fn pack<T: NetworkEvent, S: SecretId<PublicId = P>>(
         &self,
-        ctx: EventContextRef<T, S>,
+        ctx: EventContextRef<'_, T, S>,
     ) -> Result<Cause<Vote<T, P>, EventHash, P>, Error> {
         let cause = match *self {
             Cause::Requesting {

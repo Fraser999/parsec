@@ -57,7 +57,7 @@ pub struct DifferingBlocksOrder {
 }
 
 impl fmt::Debug for DifferingBlocksOrder {
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(formatter, "{{")?;
         writeln!(
             formatter,

@@ -259,7 +259,7 @@ impl<S: SecretId> PeerList<S> {
     }
 
     /// Adds event created by the peer.
-    pub fn add_event(&mut self, event: IndexedEventRef<S::PublicId>) {
+    pub fn add_event(&mut self, event: IndexedEventRef<'_, S::PublicId>) {
         if let Some(peer) = self.get_known_mut(event.creator()) {
             peer.add_event(event.index_by_creator(), event.event_index())
         }
@@ -290,7 +290,7 @@ impl<S: SecretId> PeerList<S> {
 }
 
 impl<S: SecretId> Debug for PeerList<S> {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         writeln!(
             formatter,
             "PeerList{{ our_id: {:?}",

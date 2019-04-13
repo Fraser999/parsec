@@ -26,7 +26,7 @@ pub struct PackedEvent<T: NetworkEvent, P: PublicId> {
 }
 
 impl<T: NetworkEvent, P: PublicId> Debug for PackedEvent<T, P> {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         write!(
             formatter,
             "Event{{ {:?}, creator: {:?}, self_parent: {:?}, other_parent: {:?} }}",

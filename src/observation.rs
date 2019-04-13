@@ -64,7 +64,7 @@ impl<T: NetworkEvent, P: PublicId> Observation<T, P> {
 }
 
 impl<T: NetworkEvent, P: PublicId> Debug for Observation<T, P> {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         match self {
             Observation::Genesis(group) => write!(formatter, "Genesis({:?})", group),
             Observation::Add { peer_id, .. } => write!(formatter, "Add({:?})", peer_id),
@@ -211,7 +211,7 @@ struct UnprovableMaliceVisitor;
 impl Visitor<'_> for UnprovableMaliceVisitor {
     type Value = UnprovableMalice;
 
-    fn expecting(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn expecting(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         write!(formatter, "UnprovableMalice")
     }
 
@@ -234,7 +234,7 @@ impl<'a, T: NetworkEvent, P: PublicId> From<&'a Observation<T, P>> for Observati
 }
 
 impl Debug for ObservationHash {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         write!(formatter, "{:?}", self.0)
     }
 }

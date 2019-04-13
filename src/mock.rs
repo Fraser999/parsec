@@ -36,7 +36,7 @@ lazy_static! {
 pub struct Signature(SafeSignature);
 
 impl Debug for Signature {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         write!(formatter, "..")
     }
 }
@@ -115,7 +115,7 @@ impl PeerId {
 }
 
 impl Debug for PeerId {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         write!(formatter, "{}", self.id)
     }
 }
@@ -177,13 +177,13 @@ impl Transaction {
 impl NetworkEvent for Transaction {}
 
 impl Display for Transaction {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         write!(formatter, "Transaction({})", self.0)
     }
 }
 
 impl Debug for Transaction {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         write!(formatter, "{}", self.0)
     }
 }

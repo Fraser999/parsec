@@ -70,7 +70,7 @@ impl MetaElection {
         }
     }
 
-    pub fn add_meta_event<P: PublicId>(&mut self, builder: MetaEventBuilder<P>) {
+    pub fn add_meta_event<P: PublicId>(&mut self, builder: MetaEventBuilder<'_, P>) {
         let event_index = builder.event().event_index();
         let creator = builder.event().creator();
         let meta_event = builder.finish();

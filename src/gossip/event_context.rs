@@ -62,7 +62,7 @@ mod tests {
             }
         }
 
-        pub fn as_ref(&self) -> EventContextRef<Transaction, PeerId> {
+        pub fn as_ref(&self) -> EventContextRef<'_, Transaction, PeerId> {
             EventContextRef {
                 graph: &self.graph,
                 peer_list: &self.peer_list,
