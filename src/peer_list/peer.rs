@@ -72,18 +72,16 @@ impl<P: PublicId> Peer<P> {
         self.presence = Presence::Removed(deciding_event_index)
     }
 
-    pub fn events<'a>(&'a self) -> impl DoubleEndedIterator<Item = EventIndex> + 'a {
+    pub fn events(&self) -> impl DoubleEndedIterator<Item = EventIndex> + '_ {
         self.events.iter()
     }
 
     #[cfg(all(test, feature = "mock"))]
-    pub fn indexed_events<'a>(
-        &'a self,
-    ) -> impl DoubleEndedIterator<Item = (usize, EventIndex)> + 'a {
+    pub fn indexed_events(&self) -> impl DoubleEndedIterator<Item = (usize, EventIndex)> + '_ {
         self.events.indexed()
     }
 
-    pub fn events_by_index<'a>(&'a self, index: usize) -> impl Iterator<Item = EventIndex> + 'a {
+    pub fn events_by_index(&self, index: usize) -> impl Iterator<Item = EventIndex> + '_ {
         self.events.by_index(index)
     }
 
@@ -145,12 +143,12 @@ impl Events {
         self.0.pop().map(|slot| slot.first)
     }
 
-    fn iter<'a>(&'a self) -> impl DoubleEndedIterator<Item = EventIndex> + 'a {
+    fn iter(&self) -> impl DoubleEndedIterator<Item = EventIndex> + '_ {
         self.0.iter().flat_map(Slot::iter)
     }
 
     #[cfg(all(test, feature = "mock"))]
-    fn indexed<'a>(&'a self) -> impl DoubleEndedIterator<Item = (usize, EventIndex)> + 'a {
+    fn indexed(&self) -> impl DoubleEndedIterator<Item = (usize, EventIndex)> + '_ {
         self.0
             .iter()
             .enumerate()
@@ -160,7 +158,7 @@ impl Events {
             })
     }
 
-    fn by_index<'a>(&'a self, index_by_creator: usize) -> impl Iterator<Item = EventIndex> + 'a {
+    fn by_index(&self, index_by_creator: usize) -> impl Iterator<Item = EventIndex> + '_ {
         self.0
             .get(index_by_creator)
             .into_iter()
@@ -202,7 +200,7 @@ impl Slot {
         self.rest.push(event_index)
     }
 
-    fn iter<'a>(&'a self) -> impl DoubleEndedIterator<Item = EventIndex> + 'a {
+    fn iter(&self) -> impl DoubleEndedIterator<Item = EventIndex> + '_ {
         iter::once(self.first).chain(self.rest.iter().cloned())
     }
 }

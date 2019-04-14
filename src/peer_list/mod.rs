@@ -123,9 +123,7 @@ impl<S: SecretId> PeerList<S> {
     }
 
     /// Returns an iterator of peers that we can send gossip to.
-    pub fn gossip_recipients<'a>(
-        &'a self,
-    ) -> impl Iterator<Item = (PeerIndex, &Peer<S::PublicId>)> + 'a {
+    pub fn gossip_recipients(&self) -> impl Iterator<Item = (PeerIndex, &Peer<S::PublicId>)> + '_ {
         let iter = if self.our_peer.state().can_send() {
             let iter = self
                 .iter()
@@ -212,11 +210,11 @@ impl<S: SecretId> PeerList<S> {
     }
 
     /// Returns the indices of the events at the given index-by-creator.
-    pub fn events_by_index<'a>(
-        &'a self,
+    pub fn events_by_index(
+        &self,
         peer_index: PeerIndex,
         index_by_creator: usize,
-    ) -> impl Iterator<Item = EventIndex> + 'a {
+    ) -> impl Iterator<Item = EventIndex> + '_ {
         self.get(peer_index)
             .into_iter()
             .flat_map(move |peer| peer.events_by_index(index_by_creator))
@@ -276,15 +274,15 @@ impl<S: SecretId> PeerList<S> {
     }
 
     /// Indices of events of the given creator, in insertion order.
-    pub fn peer_events<'a>(
-        &'a self,
+    pub fn peer_events(
+        &self,
         peer_index: PeerIndex,
-    ) -> impl DoubleEndedIterator<Item = EventIndex> + 'a {
+    ) -> impl DoubleEndedIterator<Item = EventIndex> + '_ {
         self.get(peer_index).into_iter().flat_map(Peer::events)
     }
 
     /// Indices of our events in insertion order.
-    pub fn our_events<'a>(&'a self) -> impl DoubleEndedIterator<Item = EventIndex> + 'a {
+    pub fn our_events(&self) -> impl DoubleEndedIterator<Item = EventIndex> + '_ {
         self.peer_events(PeerIndex::OUR)
     }
 }

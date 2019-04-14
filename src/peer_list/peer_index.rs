@@ -57,7 +57,7 @@ impl<T> PeerIndexMap<T> {
         }
     }
 
-    pub fn keys<'a>(&'a self) -> impl Iterator<Item = PeerIndex> + 'a {
+    pub fn keys(&self) -> impl Iterator<Item = PeerIndex> + '_ {
         self.0
             .iter()
             .enumerate()
@@ -293,7 +293,7 @@ pub(crate) struct SetIter<'a> {
     current: usize,
 }
 
-impl<'a> Iterator for SetIter<'a> {
+impl Iterator for SetIter<'_> {
     type Item = PeerIndex;
 
     fn next(&mut self) -> Option<Self::Item> {

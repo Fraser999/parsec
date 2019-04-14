@@ -348,7 +348,7 @@ impl<P: PublicId> Event<P> {
         self.cache.index_by_creator
     }
 
-    pub fn last_ancestors<'a>(&'a self) -> impl Iterator<Item = (PeerIndex, usize)> + 'a {
+    pub fn last_ancestors(&self) -> impl Iterator<Item = (PeerIndex, usize)> + '_ {
         self.cache
             .ancestor_info
             .iter()

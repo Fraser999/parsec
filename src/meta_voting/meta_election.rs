@@ -218,10 +218,10 @@ impl MetaElection {
             .insert(event_index);
     }
 
-    pub fn unconsensused_events<'a>(
-        &'a self,
+    pub fn unconsensused_events(
+        &self,
         filter_key: Option<&ObservationKey>,
-    ) -> impl Iterator<Item = EventIndex> + 'a {
+    ) -> impl Iterator<Item = EventIndex> + '_ {
         let indices = if let Some(filter_key) = filter_key {
             self.unconsensused_events
                 .indices_by_key
