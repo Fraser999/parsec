@@ -19,6 +19,7 @@ use crate::{
     peer_list::{PeerListSnapshot, PeerState},
 };
 use std::collections::BTreeSet;
+use unwrap::unwrap;
 
 type TestPeer = TestParsec<Transaction, PeerId>;
 

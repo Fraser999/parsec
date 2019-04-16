@@ -33,6 +33,8 @@ use std::{
     fmt::{self, Debug, Formatter},
     iter,
 };
+#[cfg(any(test, feature = "testing"))]
+use unwrap::unwrap;
 
 pub(crate) struct PeerList<S: SecretId> {
     our_id: S,

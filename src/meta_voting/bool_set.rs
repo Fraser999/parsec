@@ -6,6 +6,8 @@
 // KIND, either express or implied. Please review the Licences for the specific language governing
 // permissions and limitations relating to use of the SAFE Network Software.
 
+use serde::{Deserialize, Serialize};
+
 /// A simple enum to hold a set of bools.
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BoolSet {

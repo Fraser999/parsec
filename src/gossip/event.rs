@@ -34,6 +34,8 @@ use crate::{
 };
 use itertools::Itertools;
 use std::fmt::{self, Debug, Display, Formatter};
+#[cfg(any(test, feature = "testing"))]
+use unwrap::unwrap;
 
 pub(crate) struct Event<P: PublicId> {
     content: Content<VoteKey<P>, EventIndex, PeerIndex>,
@@ -715,6 +717,7 @@ mod tests {
         observation::Observation,
         peer_list::PeerState,
     };
+    use unwrap::unwrap_err;
 
     fn create_event_with_single_peer(id: &str) -> (EventContext, Event<PeerId>) {
         let context = EventContext::new(PeerId::new(id));

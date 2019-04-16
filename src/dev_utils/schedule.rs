@@ -21,6 +21,7 @@ use std::{
 };
 #[cfg(feature = "dump-graphs")]
 use std::{fs::File, io::Write};
+use unwrap::unwrap;
 
 /// This struct holds the data necessary to make a simulated request when a node executes a local
 /// step.

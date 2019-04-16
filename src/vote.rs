@@ -14,7 +14,7 @@ use crate::{
     peer_list::PeerIndex,
     serialise,
 };
-use serde::de::DeserializeOwned;
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::fmt::{self, Debug, Formatter};
 
 /// A helper struct carrying an `Observation` and a signature of this `Observation`.

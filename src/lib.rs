@@ -154,22 +154,18 @@
     unknown_crate_types
 )]
 // TODO - remove these
-#![allow(macro_use_extern_crate, single_use_lifetimes, unreachable_pub)]
+#![allow(single_use_lifetimes, unreachable_pub)]
 
-#[macro_use]
-extern crate lazy_static;
+// TODO: remove these two `extern crate` items once maidsafe_utilities is updated as per
+// https://doc.rust-lang.org/nightly/edition-guide/rust-2018/macros/macro-changes.html#local-helper-macros
+#[allow(macro_use_extern_crate, clippy::useless_attribute)]
 #[macro_use]
 extern crate log;
+#[allow(macro_use_extern_crate, clippy::useless_attribute)]
 #[macro_use]
 extern crate maidsafe_utilities;
 #[cfg(feature = "testing")]
-#[macro_use]
 extern crate proptest as proptest_crate;
-#[macro_use]
-extern crate serde_derive;
-#[cfg(any(test, feature = "mock", feature = "testing", feature = "dump-graphs"))]
-#[macro_use]
-extern crate unwrap;
 
 #[doc(hidden)]
 #[cfg(any(test, feature = "testing"))]

@@ -13,6 +13,7 @@ use crate::{
     observation::Observation,
     vote::Vote,
 };
+use serde::{Deserialize, Serialize};
 use std::{
     collections::{vec_deque, BTreeMap, BTreeSet, VecDeque},
     ops::{Deref, DerefMut},

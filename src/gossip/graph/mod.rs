@@ -20,6 +20,8 @@ use std::collections::{
     btree_map::{BTreeMap, Entry},
     BTreeSet,
 };
+#[cfg(test)]
+use unwrap::unwrap;
 
 /// The gossip graph.
 #[derive(Eq, PartialEq, Debug)]
@@ -355,6 +357,7 @@ impl<'a, P: PublicId> Iterator for Iter<'a, P> {
 #[cfg(any(all(test, feature = "mock"), feature = "dump-graphs"))]
 pub(crate) mod snapshot {
     use super::*;
+    use serde::{Deserialize, Serialize};
 
     /// Snapshot of the graph. Two snapshots compare as equal if the graphs had the same events
     /// modulo their insertion order.
@@ -382,6 +385,7 @@ pub(crate) mod snapshot {
 #[cfg(test)]
 mod tests {
     use crate::dev_utils::parse_test_dot_file;
+    use unwrap::unwrap;
 
     #[test]
     fn ancestors_iterator() {

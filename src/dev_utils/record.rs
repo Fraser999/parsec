@@ -16,6 +16,7 @@ use crate::{
     peer_list::PeerIndex,
 };
 use std::{collections::BTreeSet, io, path::Path};
+use unwrap::unwrap;
 
 /// Record of a Parsec session which consist of sequence of operations (`vote_for`, `handle_request`
 /// and `handle_response`). Can be produced from a previously dumped DOT file and after replaying,

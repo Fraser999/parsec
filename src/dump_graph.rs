@@ -84,6 +84,7 @@ mod detail {
         serialise,
     };
     use itertools::Itertools;
+    use lazy_static::lazy_static;
     use rand::{self, Rng};
     use std::{
         cell::RefCell,
@@ -97,6 +98,7 @@ mod detail {
         process::Command,
         thread,
     };
+    use unwrap::unwrap;
 
     lazy_static! {
         static ref ROOT_DIR_PREFIX: PathBuf = { env::temp_dir().join("parsec_graphs") };

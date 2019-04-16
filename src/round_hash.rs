@@ -7,6 +7,7 @@
 // permissions and limitations relating to use of the SAFE Network Software.
 
 use crate::{hash::Hash, id::PublicId, observation::ObservationHash, serialise};
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, Debug)]
 pub(crate) struct RoundHash {

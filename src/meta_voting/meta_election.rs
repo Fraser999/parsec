@@ -18,6 +18,7 @@ use crate::{
     round_hash::RoundHash,
 };
 use fnv::{FnvHashMap, FnvHashSet};
+use lazy_static::lazy_static;
 use std::{cmp, collections::BTreeSet, usize};
 
 lazy_static! {
@@ -351,6 +352,7 @@ pub(crate) mod snapshot {
         id::SecretId,
         peer_list::PeerList,
     };
+    use serde::{Deserialize, Serialize};
     use std::collections::BTreeMap;
 
     #[serde(bound = "")]

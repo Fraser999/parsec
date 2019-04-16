@@ -10,6 +10,7 @@ use super::PeerStatus;
 use crate::mock::PeerId;
 use rand::Rng;
 use std::collections::{BTreeMap, BTreeSet};
+use unwrap::unwrap;
 
 pub struct PeerStatuses {
     statuses: BTreeMap<PeerId, PeerStatus>,

@@ -27,6 +27,8 @@ use crate::{
     observation::{ConsensusMode, ObservationStore},
 };
 use serde::{Deserialize, Serialize};
+#[cfg(any(test, feature = "testing"))]
+use unwrap::unwrap;
 
 #[serde(bound(
     serialize = "V: Serialize, E: Serialize, P: Serialize",

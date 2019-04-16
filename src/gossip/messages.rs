@@ -7,6 +7,7 @@
 // permissions and limitations relating to use of the SAFE Network Software.
 
 use crate::{gossip::packed_event::PackedEvent, id::PublicId, network_event::NetworkEvent};
+use serde::{Deserialize, Serialize};
 
 /// A gossip request message.
 #[serde(bound = "")]

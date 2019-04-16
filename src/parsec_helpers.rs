@@ -96,6 +96,8 @@ mod tests {
         observation::{ConsensusMode, ObservationHash},
         peer_list::PeerIndex,
     };
+    use lazy_static::lazy_static;
+    use unwrap::unwrap;
 
     lazy_static! {
         /// Hashes for opaque events to use in tests.

@@ -7,6 +7,7 @@
 // permissions and limitations relating to use of the SAFE Network Software.
 
 use std::{cmp::Ordering, fmt::Debug};
+use unwrap::unwrap;
 
 /// Testing related extensions to `Iterator`.
 pub trait TestIterator: Iterator {

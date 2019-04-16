@@ -10,13 +10,17 @@ use crate::{
     id::{PublicId, SecretId},
     network_event::NetworkEvent,
 };
+use lazy_static::lazy_static;
 use rand::{Rand, Rng};
 use safe_crypto::{gen_sign_keypair, PublicSignKey, SecretSignKey, Signature as SafeSignature};
+use serde::{Deserialize, Serialize};
 use std::{
     cmp::Ordering,
     fmt::{self, Debug, Display, Formatter},
     hash::{Hash, Hasher},
 };
+#[cfg(feature = "mock")]
+use unwrap::unwrap;
 
 pub const NAMES: &[&str] = &[
     "Alice", "Bob", "Carol", "Dave", "Eric", "Fred", "Gina", "Hank", "Iris", "Judy", "Kent",

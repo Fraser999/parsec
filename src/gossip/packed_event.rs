@@ -15,6 +15,7 @@ use crate::{
     observation::Observation,
 };
 use crate::{hash::Hash, serialise, NetworkEvent, PublicId, Vote};
+use serde::{Deserialize, Serialize};
 use std::fmt::{self, Debug, Formatter};
 
 /// Packed event contains only content and signature.

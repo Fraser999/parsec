@@ -40,6 +40,7 @@ use std::{
     rc::Rc,
     str::FromStr,
 };
+use unwrap::unwrap;
 
 pub const HEX_DIGITS_PER_BYTE: usize = 2;
 

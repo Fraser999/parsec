@@ -46,6 +46,8 @@ use std::{
     marker::PhantomData,
     mem, usize,
 };
+#[cfg(any(test, feature = "testing"))]
+use unwrap::unwrap;
 
 /// The main object which manages creating and receiving gossip about network events from peers, and
 /// which provides a sequence of consensused [Block](struct.Block.html)s by applying the PARSEC

@@ -26,6 +26,7 @@ use std::{
     collections::{BTreeMap, BTreeSet, VecDeque},
     fmt,
 };
+use unwrap::unwrap;
 
 enum Message {
     Request(Request<Transaction, PeerId>, usize),

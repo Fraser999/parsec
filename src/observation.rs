@@ -383,6 +383,7 @@ mod tests {
     use super::*;
     use crate::mock::{PeerId, Transaction};
     use maidsafe_utilities::serialisation::deserialise;
+    use unwrap::unwrap;
 
     #[test]
     fn malice_comparison_and_hashing_ignores_unprovable_value() {

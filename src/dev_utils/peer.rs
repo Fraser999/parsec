@@ -26,6 +26,7 @@ use std::{
     iter,
     ops::{Deref, DerefMut},
 };
+use unwrap::unwrap;
 
 /// This represents the peer's own view of its current status.
 ///

@@ -7,6 +7,7 @@
 // permissions and limitations relating to use of the SAFE Network Software.
 
 use super::{bool_set::BoolSet, meta_vote_counts::MetaVoteCounts};
+use serde::{Deserialize, Serialize};
 use std::{
     collections::BTreeMap,
     fmt::{self, Debug, Formatter},

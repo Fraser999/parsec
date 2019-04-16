@@ -7,6 +7,7 @@
 // permissions and limitations relating to use of the SAFE Network Software.
 
 use crate::hash::Hash;
+use serde::{Deserialize, Serialize};
 use std::fmt::{self, Debug, Formatter};
 
 /// Hash of the event contents.
